@@ -6,7 +6,7 @@ Cronograma interactivo de la **Plataforma de Gestión Escolar** del Politécnico
 
 Una vez publicado en GitHub Pages estará disponible en:
 ```
-https://<tu-usuario>.github.io/<nombre-del-repo>/
+[https://<tu-usuario>.github.io/<nombre-del-repo>/](https://tenthforcestudio.github.io/pco-cronograma/)
 ```
 
 ---
