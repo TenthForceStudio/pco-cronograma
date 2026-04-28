@@ -14,11 +14,13 @@
   --text:#e8eaf0;--muted:#7a8399;--accent:#4f8ef7;--accent2:#7fb3ff;
   --coord:#4f8ef7;--backend:#34d399;--frontend:#f97316;
   --db:#a78bfa;--security:#f43f5e;--media:#fbbf24;--general:#64748b;
-  --row-h:54px;--label-w:260px;
+  --done:#34d399;--inprog:#4f8ef7;
+  --row-h:54px;--label-w:270px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh}
 
+/* HEADER */
 .site-header{padding:1.1rem 2rem;border-bottom:1px solid var(--border);background:var(--bg2);position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
 .site-header h1{font-family:'DM Serif Display',serif;font-size:clamp(.95rem,2.2vw,1.4rem);font-weight:400;letter-spacing:-.02em}
 .site-header p{font-size:.68rem;color:var(--muted);margin-top:.18rem;font-family:'DM Mono',monospace}
@@ -29,16 +31,37 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 .btn-danger{background:rgba(244,63,94,.15);color:#fda4af;border:1px solid rgba(244,63,94,.3)}.btn-danger:hover{background:rgba(244,63,94,.28)}
 .badge{background:rgba(79,142,247,.15);color:var(--accent2);font-size:.62rem;font-weight:600;letter-spacing:.08em;padding:.18rem .55rem;border-radius:999px;border:1px solid rgba(79,142,247,.3);font-family:'DM Mono',monospace}
 
+/* STATS */
 .stats-bar{display:flex;gap:1.2rem;padding:.65rem 2rem;background:var(--bg2);border-bottom:1px solid var(--border);flex-wrap:wrap;align-items:center}
 .stat{display:flex;flex-direction:column}
 .stat-val{font-family:'DM Serif Display',serif;font-size:1.35rem;color:var(--text);line-height:1}
 .stat-label{font-size:.57rem;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.05em}
 .stat-div{width:1px;background:var(--border);align-self:stretch}
+.progress-wrap{display:flex;flex-direction:column;gap:.3rem;min-width:140px}
+.progress-track{height:5px;background:var(--bg3);border-radius:999px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#34d399,#4f8ef7);border-radius:999px;transition:width .6s ease}
+.progress-label{font-size:.57rem;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.05em}
 
-.legend{display:flex;flex-wrap:wrap;gap:.4rem .8rem;padding:.6rem 2rem;background:var(--bg2);border-bottom:1px solid var(--border);align-items:center}
+/* LEGEND */
+.legend{display:flex;flex-wrap:wrap;gap:.4rem .8rem;padding:.55rem 2rem;background:var(--bg2);border-bottom:1px solid var(--border);align-items:center}
 .legend-item{display:flex;align-items:center;gap:.3rem;font-size:.68rem;color:var(--muted);cursor:pointer;transition:color .14s;padding:.18rem .45rem;border-radius:5px;border:1px solid transparent}
 .legend-item:hover{color:var(--text)}.legend-item.active{color:var(--text);background:var(--bg3);border-color:var(--border2)}
 .legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.legend-sep{width:1px;background:var(--border);height:16px;margin:0 .2rem}
+
+/* STATUS LEGEND */
+.slbl{font-size:.62rem;color:var(--muted);font-family:'DM Mono',monospace;margin-right:.2rem}
+.status-pill{display:inline-flex;align-items:center;gap:.3rem;font-size:.65rem;font-weight:600;padding:.18rem .55rem;border-radius:999px;cursor:pointer;border:1px solid transparent;font-family:'DM Mono',monospace;transition:all .14s;letter-spacing:.04em}
+.sp-all  {background:var(--bg3);color:var(--muted);border-color:var(--border2)}
+.sp-all.active,.sp-all:hover{color:var(--text);border-color:var(--border2)}
+.sp-done {background:rgba(52,211,153,.12);color:#6ee7b7;border-color:rgba(52,211,153,.25)}
+.sp-done.active,.sp-done:hover{background:rgba(52,211,153,.22)}
+.sp-prog {background:rgba(79,142,247,.12);color:#93c5fd;border-color:rgba(79,142,247,.25)}
+.sp-prog.active,.sp-prog:hover{background:rgba(79,142,247,.22)}
+.sp-pend {background:rgba(122,131,153,.08);color:var(--muted);border-color:var(--border)}
+.sp-pend.active,.sp-pend:hover{background:rgba(122,131,153,.18)}
+
+/* FILTERS */
 .filters{display:flex;gap:.35rem;padding:.5rem 2rem;background:var(--bg);border-bottom:1px solid var(--border);flex-wrap:wrap;align-items:center}
 .filter-lbl{font-size:.62rem;color:var(--muted);font-family:'DM Mono',monospace;margin-right:.2rem}
 .fbtn{background:var(--bg3);border:1px solid var(--border2);color:var(--muted);font-size:.65rem;font-weight:500;padding:.22rem .6rem;border-radius:5px;cursor:pointer;transition:all .14s;font-family:'Outfit',sans-serif}
@@ -51,7 +74,7 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 .ap-label{font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.04em}
 .ap-input,.ap-select{background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-size:.75rem;padding:.3rem .6rem;border-radius:6px;font-family:'Outfit',sans-serif;outline:none;transition:border-color .14s}
 .ap-input:focus,.ap-select:focus{border-color:var(--accent)}
-.ap-input{width:220px}.ap-select{width:130px}
+.ap-input{width:200px}.ap-select{width:130px}
 .ap-select option{background:var(--bg3)}
 
 /* GANTT */
@@ -64,27 +87,62 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 .week-num{font-size:.53rem;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.08em;display:block}
 .week-dates{font-size:.6rem;color:var(--text);font-weight:500}
 
+/* PHASE HEADER */
 .phase-header{display:flex;align-items:center;padding:1.1rem 2rem .35rem;gap:.55rem;min-width:calc(var(--label-w) + 960px)}
 .phase-number{font-family:'DM Serif Display',serif;font-size:1.7rem;color:var(--border2);line-height:1;font-style:italic}
 .phase-info h2{font-size:.88rem;font-weight:600;color:var(--text)}
 .phase-info p{font-size:.62rem;color:var(--muted);font-family:'DM Mono',monospace}
 .phase-line{flex:1;height:1px;background:var(--border)}
 
+/* TASK ROW */
 .task-row{display:flex;min-width:calc(var(--label-w) + 960px);height:var(--row-h);border-bottom:1px solid var(--border);transition:background .12s;animation:rowIn .32s ease both;position:relative}
-.task-row:hover{background:rgba(255,255,255,.02)}.task-row.hidden{display:none}
+.task-row:hover{background:rgba(255,255,255,.02)}
+.task-row.hidden{display:none}
 @keyframes rowIn{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:none}}
 
-.task-label-cell{width:var(--label-w);min-width:var(--label-w);padding:0 .7rem 0 2rem;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--border);gap:.08rem}
+/* DONE row style */
+.task-row.done{background:rgba(52,211,153,.03)}
+.task-row.done .task-name{color:var(--muted);text-decoration:line-through;text-decoration-color:rgba(52,211,153,.45)}
+.task-row.done .bar{opacity:.5;filter:grayscale(.35)}
+
+/* IN PROGRESS row style */
+.task-row.in-progress .bar::before{
+  content:'';position:absolute;inset:0;border-radius:6px;
+  background:linear-gradient(90deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.18) 50%,rgba(255,255,255,0) 100%);
+  background-size:200% 100%;
+  animation:shimmer 1.8s linear infinite;
+}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* STATUS BADGE in label cell */
+.sbadge{display:inline-flex;align-items:center;gap:.2rem;font-size:.54rem;font-weight:700;letter-spacing:.06em;padding:.08rem .35rem;border-radius:999px;font-family:'DM Mono',monospace;margin-top:.12rem;line-height:1.4}
+.sbadge.done    {background:rgba(52,211,153,.15);color:#6ee7b7;border:1px solid rgba(52,211,153,.3)}
+.sbadge.in-progress{background:rgba(79,142,247,.15);color:#93c5fd;border:1px solid rgba(79,142,247,.3)}
+.sbadge.pending {background:rgba(122,131,153,.1);color:var(--muted);border:1px solid var(--border);display:none}
+
+/* CHECK BUTTON */
+.task-label-cell{width:var(--label-w);min-width:var(--label-w);padding:0 .6rem 0 2rem;display:flex;align-items:center;border-right:1px solid var(--border);gap:.5rem}
+.check-btn{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--border2);background:transparent;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .14s;position:relative;font-size:.7rem}
+.check-btn:hover{border-color:var(--done);background:rgba(52,211,153,.08)}
+.task-row.done .check-btn{background:rgba(52,211,153,.2);border-color:var(--done);color:#6ee7b7}
+.task-row.in-progress .check-btn{border-color:var(--inprog);border-style:dashed}
+.label-content{display:flex;flex-direction:column;gap:.06rem;min-width:0;flex:1}
 .task-name{font-size:.74rem;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .task-area-lbl{font-size:.58rem;color:var(--muted);font-family:'DM Mono',monospace}
-.edit-row-btn{position:absolute;left:calc(var(--label-w) - 58px);top:50%;transform:translateY(-50%);background:var(--bg4);border:1px solid var(--border2);color:var(--muted);font-size:.58rem;padding:.12rem .4rem;border-radius:4px;cursor:pointer;opacity:0;transition:opacity .14s;font-family:'Outfit',sans-serif;z-index:10}
-.task-row:hover .edit-row-btn{opacity:1}.edit-row-btn:hover{color:var(--accent2);border-color:var(--accent)}
+
+/* EDIT BUTTON */
+.edit-row-btn{position:absolute;right:calc(100% - var(--label-w) + 4px);top:50%;transform:translateY(-50%);background:var(--bg4);border:1px solid var(--border2);color:var(--muted);font-size:.56rem;padding:.1rem .38rem;border-radius:4px;cursor:pointer;opacity:0;transition:opacity .14s;font-family:'Outfit',sans-serif;z-index:10;white-space:nowrap}
+.task-row:hover .edit-row-btn{opacity:1}
+.edit-row-btn:hover{color:var(--accent2);border-color:var(--accent)}
 
 .task-bars{flex:1;position:relative;display:grid;grid-template-columns:repeat(8,1fr)}
 .task-bars-bg-col{border-right:1px solid var(--border)}.task-bars-bg-col:last-child{border-right:none}
-.bar{position:absolute;top:50%;transform:translateY(-50%);height:25px;border-radius:6px;display:flex;align-items:center;padding:0 8px;font-size:.6rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.02em;cursor:pointer;transition:filter .14s,transform .14s}
+.bar{position:absolute;top:50%;transform:translateY(-50%);height:25px;border-radius:6px;display:flex;align-items:center;padding:0 8px;font-size:.6rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.02em;cursor:pointer;transition:filter .14s,transform .14s;overflow:visible}
 .bar:hover{filter:brightness(1.2);transform:translateY(-50%) scaleY(1.1);z-index:10}
+.bar-inner{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-check{margin-left:4px;flex-shrink:0;font-size:.65rem}
 
+/* MILESTONE */
 .milestone-row{display:flex;min-width:calc(var(--label-w) + 960px);height:38px;border-bottom:1px solid var(--border)}
 .milestone-label-cell{width:var(--label-w);min-width:var(--label-w);padding:0 .7rem 0 2rem;display:flex;align-items:center;border-right:1px solid var(--border)}
 .ms-lbl{font-size:.65rem;color:var(--muted);font-family:'DM Mono',monospace}
@@ -95,34 +153,48 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 .ms-text{font-size:.56rem;color:#fbbf24;font-family:'DM Mono',monospace;white-space:nowrap;font-weight:600;margin-top:3px}
 
 /* TOOLTIP */
-.tooltip{position:fixed;background:var(--bg2);border:1px solid var(--border2);border-radius:9px;padding:.6rem .9rem;font-size:.68rem;color:var(--text);z-index:999;pointer-events:none;opacity:0;transition:opacity .12s;max-width:250px;box-shadow:0 8px 32px rgba(0,0,0,.6)}
+.tooltip{position:fixed;background:var(--bg2);border:1px solid var(--border2);border-radius:9px;padding:.6rem .9rem;font-size:.68rem;color:var(--text);z-index:999;pointer-events:none;opacity:0;transition:opacity .12s;max-width:260px;box-shadow:0 8px 32px rgba(0,0,0,.6)}
 .tooltip.visible{opacity:1}
 .tt-title{font-weight:600;margin-bottom:.3rem;color:var(--accent2);font-size:.72rem}
 .tt-row{color:var(--muted);margin-top:.12rem}.tt-row span{color:var(--text)}
+.tt-status{display:inline-flex;align-items:center;gap:.25rem;margin-top:.35rem;font-size:.62rem;font-weight:700;font-family:'DM Mono',monospace}
 
 /* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:500;display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity .18s}
 .modal-overlay.open{opacity:1;pointer-events:all}
 .modal{background:var(--bg2);border:1px solid var(--border2);border-radius:13px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.75)}
-.modal-hdr{padding:1.15rem 1.4rem .9rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-hdr{padding:1.1rem 1.4rem .9rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .modal-hdr h3{font-family:'DM Serif Display',serif;font-size:1.15rem;font-weight:400}
 .modal-close{background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;line-height:1;padding:.2rem}
 .modal-close:hover{color:var(--text)}
-.modal-body{padding:1.15rem 1.4rem}
-.modal-ftr{padding:.7rem 1.4rem 1.15rem;border-top:1px solid var(--border);display:flex;gap:.45rem;justify-content:flex-end}
+.modal-body{padding:1.1rem 1.4rem}
+.modal-ftr{padding:.7rem 1.4rem 1.1rem;border-top:1px solid var(--border);display:flex;gap:.45rem;justify-content:flex-end}
 
-.fg{margin-bottom:.9rem}
+.fg{margin-bottom:.85rem}
 .fl{display:block;font-size:.68rem;font-weight:600;color:var(--muted);margin-bottom:.3rem;font-family:'DM Mono',monospace;letter-spacing:.04em}
 .fi,.fs,.fta{width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-size:.78rem;padding:.45rem .7rem;border-radius:7px;font-family:'Outfit',sans-serif;transition:border-color .14s;outline:none}
 .fi:focus,.fs:focus,.fta:focus{border-color:var(--accent)}
-.fs option{background:var(--bg3)}.fta{resize:vertical;min-height:65px}
+.fs option{background:var(--bg3)}.fta{resize:vertical;min-height:60px}
 .frow{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
-.fhint{font-size:.6rem;color:var(--muted);margin-top:.25rem}
+.fhint{font-size:.6rem;color:var(--muted);margin-top:.22rem}
 .rw{display:flex;align-items:center;gap:.7rem}
 .rw input[type=range]{flex:1;accent-color:var(--accent)}
 .rv{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--accent2);min-width:2.2rem;text-align:right}
 
-/* AREA COLOR CLASSES */
+/* STATUS SELECTOR IN MODAL */
+.status-selector{display:flex;gap:.5rem;margin-top:.2rem}
+.ss-opt{flex:1;padding:.45rem;border-radius:7px;border:1.5px solid var(--border2);background:var(--bg3);cursor:pointer;text-align:center;transition:all .14s}
+.ss-opt:hover{border-color:var(--border2);background:var(--bg4)}
+.ss-opt.active-pending  {border-color:var(--muted);background:rgba(122,131,153,.12)}
+.ss-opt.active-in-progress{border-color:var(--inprog);background:rgba(79,142,247,.12)}
+.ss-opt.active-done     {border-color:var(--done);background:rgba(52,211,153,.12)}
+.ss-icon{font-size:1rem;display:block;margin-bottom:.2rem}
+.ss-label{font-size:.65rem;font-weight:600;font-family:'DM Mono',monospace;letter-spacing:.04em}
+.ss-opt.active-pending   .ss-label{color:var(--muted)}
+.ss-opt.active-in-progress .ss-label{color:#93c5fd}
+.ss-opt.active-done      .ss-label{color:#6ee7b7}
+
+/* COLORS */
 .c-coord   {background:rgba(79,142,247,.18);color:#93c5fd}
 .c-backend {background:rgba(52,211,153,.18);color:#6ee7b7}
 .c-frontend{background:rgba(249,115,22,.18);color:#fdba74}
@@ -144,13 +216,13 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
   <div class="hdr-right">
     <span class="badge">MVP · 2 MESES</span>
     <button class="btn btn-ghost" onclick="toggleAdd()">＋ Agregar tarea</button>
-    <button class="btn btn-ghost" onclick="doExport()">↓ Exportar JSON</button>
-    <button class="btn btn-ghost" onclick="doImport()">↑ Importar JSON</button>
+    <button class="btn btn-ghost" onclick="doExport()">↓ Exportar</button>
+    <button class="btn btn-ghost" onclick="doImport()">↑ Importar</button>
     <input type="file" id="importFile" accept=".json" style="display:none" onchange="loadImport(event)"/>
   </div>
 </header>
 
-<!-- QUICK ADD PANEL -->
+<!-- QUICK ADD -->
 <div class="add-panel" id="addPanel">
   <div class="ap-group"><label class="ap-label">NOMBRE</label><input class="ap-input" id="qName" placeholder="Nombre de la tarea"/></div>
   <div class="ap-group"><label class="ap-label">ÁREA</label>
@@ -161,7 +233,7 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
       <option value="media">Multimedia</option>
     </select>
   </div>
-  <div class="ap-group"><label class="ap-label">INICIO (SEM)</label>
+  <div class="ap-group"><label class="ap-label">INICIO</label>
     <select class="ap-select" id="qStart" style="width:100px">
       <option value="0">Sem 1</option><option value="1">Sem 2</option><option value="2">Sem 3</option>
       <option value="3">Sem 4</option><option value="4">Sem 5</option><option value="5">Sem 6</option>
@@ -172,7 +244,7 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
     <select class="ap-select" id="qDur" style="width:90px">
       <option value="0.5">0.5 sem</option><option value="1" selected>1 sem</option>
       <option value="1.5">1.5 sem</option><option value="2">2 sem</option>
-      <option value="2.5">2.5 sem</option><option value="3">3 sem</option><option value="4">4 sem</option>
+      <option value="3">3 sem</option><option value="4">4 sem</option>
     </select>
   </div>
   <div class="ap-group"><label class="ap-label">FASE</label>
@@ -187,18 +259,26 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
   </div>
 </div>
 
+<!-- STATS -->
 <div class="stats-bar">
   <div class="stat"><span class="stat-val">8</span><span class="stat-label">SEMANAS</span></div>
   <div class="stat-div"></div>
   <div class="stat"><span class="stat-val">10</span><span class="stat-label">INTEGRANTES</span></div>
   <div class="stat-div"></div>
-  <div class="stat"><span class="stat-val" id="statTasks">0</span><span class="stat-label">TAREAS</span></div>
+  <div class="stat"><span class="stat-val" id="statTotal">0</span><span class="stat-label">TAREAS</span></div>
   <div class="stat-div"></div>
-  <div class="stat"><span class="stat-val">15</span><span class="stat-label">MÓDULOS</span></div>
+  <div class="stat"><span class="stat-val" id="statDone" style="color:#6ee7b7">0</span><span class="stat-label">COMPLETADAS</span></div>
   <div class="stat-div"></div>
-  <div class="stat"><span class="stat-val">4</span><span class="stat-label">HITOS</span></div>
+  <div class="stat"><span class="stat-val" id="statProg" style="color:#93c5fd">0</span><span class="stat-label">EN PROGRESO</span></div>
+  <div class="stat-div"></div>
+  <div class="progress-wrap">
+    <div class="progress-label">PROGRESO GENERAL — <span id="pctLbl">0%</span></div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="progress-label" id="progressSub" style="color:var(--muted)">0 de 0 tareas completadas</div>
+  </div>
 </div>
 
+<!-- LEGEND + STATUS FILTER -->
 <div class="legend">
   <span class="filter-lbl">ÁREA →</span>
   <div class="legend-item active" data-area="all"      onclick="fArea('all',this)">     <span class="legend-dot" style="background:var(--muted)"></span>Todas</div>
@@ -209,6 +289,12 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
   <div class="legend-item" data-area="db"       onclick="fArea('db',this)">       <span class="legend-dot" style="background:var(--db)"></span>Base de Datos</div>
   <div class="legend-item" data-area="security" onclick="fArea('security',this)"> <span class="legend-dot" style="background:var(--security)"></span>Seguridad</div>
   <div class="legend-item" data-area="media"    onclick="fArea('media',this)">    <span class="legend-dot" style="background:var(--media)"></span>Multimedia</div>
+  <div class="legend-sep"></div>
+  <span class="slbl">ESTADO →</span>
+  <span class="status-pill sp-all active" onclick="fStatus('all',this)">Todos</span>
+  <span class="status-pill sp-done"       onclick="fStatus('done',this)">✓ Completadas</span>
+  <span class="status-pill sp-prog"       onclick="fStatus('in-progress',this)">▶ En progreso</span>
+  <span class="status-pill sp-pend"       onclick="fStatus('pending',this)">○ Pendientes</span>
 </div>
 
 <div class="filters">
@@ -222,7 +308,7 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 
 <div class="gantt-wrap">
   <div class="gantt-header">
-    <div class="gantt-header-label">TAREA / ÁREA</div>
+    <div class="gantt-header-label">TAREA / ESTADO</div>
     <div class="gantt-header-weeks" id="weekHdrs"></div>
   </div>
   <div id="ganttBody"></div>
@@ -230,7 +316,7 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 
 <footer class="site-footer">
   <span>Politécnico Cristo Obrero · Plataforma de Gestión Escolar</span>
-  <span>Cronograma MVP · 2 meses · v2.0 · Abril 2026</span>
+  <span>Haz clic en ☐ para cambiar el estado de cada tarea · v2.1 · Abril 2026</span>
 </footer>
 
 <div class="tooltip" id="tooltip"></div>
@@ -243,6 +329,22 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body">
+      <!-- STATUS SELECTOR -->
+      <div class="fg">
+        <label class="fl">ESTADO</label>
+        <div class="status-selector">
+          <div class="ss-opt" id="ss-pending" onclick="selectStatus('pending')">
+            <span class="ss-icon">○</span><span class="ss-label">PENDIENTE</span>
+          </div>
+          <div class="ss-opt" id="ss-in-progress" onclick="selectStatus('in-progress')">
+            <span class="ss-icon">▶</span><span class="ss-label">EN PROGRESO</span>
+          </div>
+          <div class="ss-opt" id="ss-done" onclick="selectStatus('done')">
+            <span class="ss-icon">✓</span><span class="ss-label">COMPLETADA</span>
+          </div>
+        </div>
+        <input type="hidden" id="eStatus" value="pending"/>
+      </div>
       <div class="fg"><label class="fl">NOMBRE</label><input class="fi" id="eName"/></div>
       <div class="frow">
         <div class="fg"><label class="fl">ÁREA</label>
@@ -255,15 +357,14 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
         </div>
         <div class="fg"><label class="fl">FASE</label>
           <select class="fs" id="ePhase">
-            <option value="0">Fase 0 — Preparación</option><option value="1">Fase 1 — Nivelación</option>
-            <option value="2">Fase 2 — Desarrollo</option><option value="3">Fase 3 — Cierre</option>
+            <option value="0">Fase 0</option><option value="1">Fase 1</option>
+            <option value="2">Fase 2</option><option value="3">Fase 3</option>
           </select>
         </div>
       </div>
       <div class="fg">
         <label class="fl">INICIO — semana <span id="startLbl"></span></label>
         <div class="rw"><input type="range" id="eStart" min="0" max="7.5" step="0.5" oninput="syncRanges()"/><span class="rv" id="startRv"></span></div>
-        <p class="fhint">0 = inicio sem 1 &nbsp;·&nbsp; 7.5 = fin sem 8</p>
       </div>
       <div class="fg">
         <label class="fl">DURACIÓN — <span id="durLbl"></span> semanas</label>
@@ -289,54 +390,57 @@ const WEEKS=[
 ];
 const WSTARTS=['28 abr','5 may','12 may','19 may','26 may','2 jun','9 jun','16 jun'];
 const ANAMES={coord:'Coordinación',backend:'Backend',frontend:'Frontend',db:'Base de Datos',security:'Ciberseguridad',media:'Multimedia',general:'General'};
+const STATUS_LABELS={pending:'Pendiente','in-progress':'En progreso',done:'Completada'};
+const STATUS_COLORS={pending:'var(--muted)','in-progress':'#93c5fd',done:'#6ee7b7'};
+const STATUS_ICONS={pending:'○','in-progress':'▶',done:'✓'};
 
 let PHASES=[
   {id:'0',number:'00',title:'Fase 0 — Preparación y Documentación',dates:'Semanas 1–2 · 28 abr – 11 may',tasks:[
-    {name:'Revisión y aprobación de documentos técnicos',       area:'coord',    color:'c-coord',    start:0,   dur:1,   persons:'Yeliana',            detail:'Definición Técnica v2, Requerimientos, Organización del Equipo'},
-    {name:'Setup repositorios GitHub (backend + frontend)',     area:'general',  color:'c-general',  start:0,   dur:0.5, persons:'Yeliana · Wilfredo', detail:'Ramas main y develop, permisos por área, .gitignore.'},
-    {name:'Config entorno Backend (.NET 8 + Swagger)',          area:'backend',  color:'c-backend',  start:0,   dur:1,   persons:'Wilfredo',           detail:'ASP.NET Core 8, Clean Architecture base, Swagger activo.'},
-    {name:'Config entorno Frontend (Vite + React + TS)',        area:'frontend', color:'c-frontend', start:0,   dur:1,   persons:'Alvely',             detail:'Vite 5 + React 18 + TypeScript 5 + Tailwind CSS 3.'},
-    {name:'Setup PostgreSQL 16 + pgAdmin + DB inicial',         area:'db',       color:'c-db',       start:0,   dur:1,   persons:'Yeliana · Mariana',  detail:'PostgreSQL 16, pgAdmin, primera base de datos creada.'},
-    {name:'Diseño identidad visual y guía de estilo',           area:'media',    color:'c-media',    start:0,   dur:1.5, persons:'Elixandra',          detail:'Logo, paleta de colores, tipografías, guía de componentes.'},
-    {name:'Plan de pruebas de seguridad',                       area:'security', color:'c-security', start:0,   dur:0.5, persons:'Jeison',             detail:'Endpoints a validar, herramientas, definición de ambiente.'},
+    {name:'Revisión y aprobación de documentos técnicos',       area:'coord',    color:'c-coord',    start:0,   dur:1,   persons:'Yeliana',            detail:'Definición Técnica v2, Requerimientos, Organización del Equipo',           status:'pending'},
+    {name:'Setup repositorios GitHub (backend + frontend)',     area:'general',  color:'c-general',  start:0,   dur:0.5, persons:'Yeliana · Wilfredo', detail:'Ramas main y develop, permisos por área, .gitignore.',                     status:'pending'},
+    {name:'Config entorno Backend (.NET 8 + Swagger)',          area:'backend',  color:'c-backend',  start:0,   dur:1,   persons:'Wilfredo',           detail:'ASP.NET Core 8, Clean Architecture base, Swagger activo.',                 status:'pending'},
+    {name:'Config entorno Frontend (Vite + React + TS)',        area:'frontend', color:'c-frontend', start:0,   dur:1,   persons:'Alvely',             detail:'Vite 5 + React 18 + TypeScript 5 + Tailwind CSS 3.',                      status:'pending'},
+    {name:'Setup PostgreSQL 16 + pgAdmin + DB inicial',         area:'db',       color:'c-db',       start:0,   dur:1,   persons:'Yeliana · Mariana',  detail:'PostgreSQL 16, pgAdmin, primera base de datos creada.',                    status:'pending'},
+    {name:'Diseño identidad visual y guía de estilo',           area:'media',    color:'c-media',    start:0,   dur:1.5, persons:'Elixandra',          detail:'Logo, paleta de colores, tipografías, guía de componentes.',               status:'pending'},
+    {name:'Plan de pruebas de seguridad',                       area:'security', color:'c-security', start:0,   dur:0.5, persons:'Jeison',             detail:'Endpoints a validar, herramientas, definición de ambiente.',               status:'pending'},
   ]},
   {id:'1',number:'01',title:'Fase 1 — Nivelación Técnica del Equipo',dates:'Semanas 1–3 · 28 abr – 18 may',tasks:[
-    {name:'Mini proyecto Frontend (React + TS + Tailwind)',     area:'frontend', color:'c-frontend', start:0.5, dur:2,   persons:'Alvely · Josue · Leury',  detail:'Mini Portal Académico: Login, Dashboard, tabla, formulario, Axios.'},
-    {name:'Mini API Backend (ASP.NET + JWT + EF Core)',         area:'backend',  color:'c-backend',  start:0.5, dur:2,   persons:'Christopher · Kemil',     detail:'Auth JWT, CRUD estudiantes, Swagger documentado, BCrypt.'},
-    {name:'Modelado ERD completo (15 módulos)',                 area:'db',       color:'c-db',       start:0.5, dur:2,   persons:'Yeliana · Mariana',       detail:'Estudiantes, docentes, calificaciones, horarios, pagos, etc.'},
-    {name:'Diseño pantallas base (Login, Dashboard, listados)', area:'media',    color:'c-media',    start:0.5, dur:2.5, persons:'Elixandra',               detail:'Canva: Login, dashboard, listados, formularios. Guía UI.'},
-    {name:'Revisión y aprobación mini proyectos',               area:'coord',    color:'c-coord',    start:2,   dur:0.5, persons:'Yeliana',                 detail:'Evaluación según criterios de rutas de aprendizaje.'},
+    {name:'Mini proyecto Frontend (React + TS + Tailwind)',     area:'frontend', color:'c-frontend', start:0.5, dur:2,   persons:'Alvely · Josue · Leury',  detail:'Mini Portal Académico: Login, Dashboard, tabla, formulario, Axios.',   status:'pending'},
+    {name:'Mini API Backend (ASP.NET + JWT + EF Core)',         area:'backend',  color:'c-backend',  start:0.5, dur:2,   persons:'Christopher · Kemil',     detail:'Auth JWT, CRUD estudiantes, Swagger documentado, BCrypt.',             status:'pending'},
+    {name:'Modelado ERD completo (15 módulos)',                 area:'db',       color:'c-db',       start:0.5, dur:2,   persons:'Yeliana · Mariana',       detail:'Estudiantes, docentes, calificaciones, horarios, pagos, etc.',         status:'pending'},
+    {name:'Diseño pantallas base (Login, Dashboard, listados)', area:'media',    color:'c-media',    start:0.5, dur:2.5, persons:'Elixandra',               detail:'Canva: Login, dashboard, listados, formularios. Guía UI.',             status:'pending'},
+    {name:'Revisión y aprobación mini proyectos',               area:'coord',    color:'c-coord',    start:2,   dur:0.5, persons:'Yeliana',                 detail:'Evaluación según criterios de rutas de aprendizaje.',                  status:'pending'},
   ]},
   {id:'2',number:'02',title:'Fase 2 — Desarrollo Core del MVP',dates:'Semanas 3–7 · 12 may – 15 jun',tasks:[
-    {name:'MOD-01/02: Usuarios + Autenticación JWT',            area:'backend',  color:'c-backend',  start:2.5, dur:1.5, persons:'Wilfredo · Christopher',  detail:'CRUD usuarios, login, JWT, roles y permisos, BCrypt.'},
-    {name:'MOD-03/04: Estudiantes + Docentes API',              area:'backend',  color:'c-backend',  start:3.5, dur:1.5, persons:'Wilfredo · Kemil',        detail:'CRUD completo con DTOs, validaciones, respuestas estandarizadas.'},
-    {name:'MOD-05/06: Grados, Secciones, Horarios API',         area:'backend',  color:'c-backend',  start:4.5, dur:1,   persons:'Christopher · Kemil',     detail:'Estructura académica, horarios con validación de conflictos.'},
-    {name:'MOD-07/08: Asistencias + Calificaciones API',        area:'backend',  color:'c-backend',  start:5,   dur:1.5, persons:'Wilfredo · Christopher',  detail:'Registro, cálculo de promedios, auditoría de cambios.'},
-    {name:'MOD-09/10: Inscripciones + Padres API',              area:'backend',  color:'c-backend',  start:5.5, dur:1,   persons:'Kemil',                   detail:'Matrícula, re-inscripción, asociación padres-hijos.'},
-    {name:'MOD-14/15: Reportes + Auditoría API',                area:'backend',  color:'c-backend',  start:6,   dur:1,   persons:'Wilfredo · Christopher',  detail:'Reportes académicos PDF/Excel, log de auditoría inmutable.'},
-    {name:'Login + Dashboard + Navegación por rol',             area:'frontend', color:'c-frontend', start:2.5, dur:1.5, persons:'Alvely · Josue',          detail:'Login con JWT real, dashboard responsivo, rutas protegidas.'},
-    {name:'Vistas Estudiantes + Docentes',                      area:'frontend', color:'c-frontend', start:3.5, dur:1.5, persons:'Alvely · Josue · Leury',  detail:'Listados, búsqueda, perfiles con Axios + TanStack Query.'},
-    {name:'Vistas Horarios + Asistencias',                      area:'frontend', color:'c-frontend', start:4.5, dur:1,   persons:'Josue · Leury',           detail:'Grilla de horarios y formulario de asistencia por docente.'},
-    {name:'Vistas Calificaciones + Inscripciones',              area:'frontend', color:'c-frontend', start:5,   dur:1.5, persons:'Alvely · Josue · Leury',  detail:'Registro de notas por docente, módulo completo de matrícula.'},
-    {name:'Panel Administrativo + Reportes Frontend',           area:'frontend', color:'c-frontend', start:6,   dur:1,   persons:'Alvely',                  detail:'Vistas de reportes exportables y panel de administración.'},
-    {name:'Migraciones DB + esquema PostgreSQL completo',       area:'db',       color:'c-db',       start:2.5, dur:1.5, persons:'Mariana',                 detail:'Migraciones EF Core aplicadas, tablas validadas en pgAdmin.'},
-    {name:'Optimización: índices + foreign keys + auditoría',   area:'db',       color:'c-db',       start:4,   dur:1,   persons:'Yeliana · Mariana',       detail:'Índices críticos, columnas created_at/updated_at en todas las tablas.'},
-    {name:'Backups y validación de integridad DB',              area:'db',       color:'c-db',       start:6,   dur:0.5, persons:'Mariana',                 detail:'Backups configurados, pruebas de restore exitosas.'},
-    {name:'Assets finales: íconos, logos, imágenes',            area:'media',    color:'c-media',    start:2.5, dur:2,   persons:'Elixandra',               detail:'Recursos gráficos finales integrados con Frontend.'},
-    {name:'Soporte visual continuo al Frontend',                area:'media',    color:'c-media',    start:4.5, dur:2,   persons:'Elixandra',               detail:'Ajustes de diseño, nuevos componentes según avance.'},
-    {name:'Validación JWT + roles + Postman',                   area:'security', color:'c-security', start:3.5, dur:1,   persons:'Jeison',                  detail:'Endpoints protegidos, roles correctos, tokens con expiración.'},
-    {name:'Pruebas OWASP ZAP sobre la API',                     area:'security', color:'c-security', start:5,   dur:1,   persons:'Jeison',                  detail:'Escaneo de vulnerabilidades en entorno de pruebas controlado.'},
-    {name:'Reporte seguridad + verificación correcciones',      area:'security', color:'c-security', start:6,   dur:0.5, persons:'Jeison',                  detail:'Informe de hallazgos y verificación de correcciones aplicadas.'},
-    {name:'Seguimiento semanal + revisión de PRs',              area:'coord',    color:'c-coord',    start:2.5, dur:4.5, persons:'Yeliana',                 detail:'Reuniones semanales, aprobación PRs, resolución de bloqueos.'},
+    {name:'MOD-01/02: Usuarios + Autenticación JWT',            area:'backend',  color:'c-backend',  start:2.5, dur:1.5, persons:'Wilfredo · Christopher',  detail:'CRUD usuarios, login, JWT, roles y permisos, BCrypt.',               status:'pending'},
+    {name:'MOD-03/04: Estudiantes + Docentes API',              area:'backend',  color:'c-backend',  start:3.5, dur:1.5, persons:'Wilfredo · Kemil',        detail:'CRUD completo con DTOs, validaciones, respuestas estandarizadas.',    status:'pending'},
+    {name:'MOD-05/06: Grados, Secciones, Horarios API',         area:'backend',  color:'c-backend',  start:4.5, dur:1,   persons:'Christopher · Kemil',     detail:'Estructura académica, horarios con validación de conflictos.',        status:'pending'},
+    {name:'MOD-07/08: Asistencias + Calificaciones API',        area:'backend',  color:'c-backend',  start:5,   dur:1.5, persons:'Wilfredo · Christopher',  detail:'Registro, cálculo de promedios, auditoría de cambios.',              status:'pending'},
+    {name:'MOD-09/10: Inscripciones + Padres API',              area:'backend',  color:'c-backend',  start:5.5, dur:1,   persons:'Kemil',                   detail:'Matrícula, re-inscripción, asociación padres-hijos.',                status:'pending'},
+    {name:'MOD-14/15: Reportes + Auditoría API',                area:'backend',  color:'c-backend',  start:6,   dur:1,   persons:'Wilfredo · Christopher',  detail:'Reportes académicos PDF/Excel, log de auditoría inmutable.',         status:'pending'},
+    {name:'Login + Dashboard + Navegación por rol',             area:'frontend', color:'c-frontend', start:2.5, dur:1.5, persons:'Alvely · Josue',          detail:'Login con JWT real, dashboard responsivo, rutas protegidas.',         status:'pending'},
+    {name:'Vistas Estudiantes + Docentes',                      area:'frontend', color:'c-frontend', start:3.5, dur:1.5, persons:'Alvely · Josue · Leury',  detail:'Listados, búsqueda, perfiles con Axios + TanStack Query.',            status:'pending'},
+    {name:'Vistas Horarios + Asistencias',                      area:'frontend', color:'c-frontend', start:4.5, dur:1,   persons:'Josue · Leury',           detail:'Grilla de horarios y formulario de asistencia por docente.',          status:'pending'},
+    {name:'Vistas Calificaciones + Inscripciones',              area:'frontend', color:'c-frontend', start:5,   dur:1.5, persons:'Alvely · Josue · Leury',  detail:'Registro de notas por docente, módulo completo de matrícula.',        status:'pending'},
+    {name:'Panel Administrativo + Reportes Frontend',           area:'frontend', color:'c-frontend', start:6,   dur:1,   persons:'Alvely',                  detail:'Vistas de reportes exportables y panel de administración.',           status:'pending'},
+    {name:'Migraciones DB + esquema PostgreSQL completo',       area:'db',       color:'c-db',       start:2.5, dur:1.5, persons:'Mariana',                 detail:'Migraciones EF Core aplicadas, tablas validadas en pgAdmin.',         status:'pending'},
+    {name:'Optimización: índices + foreign keys + auditoría',   area:'db',       color:'c-db',       start:4,   dur:1,   persons:'Yeliana · Mariana',       detail:'Índices críticos, columnas created_at/updated_at en todas las tablas.',status:'pending'},
+    {name:'Backups y validación de integridad DB',              area:'db',       color:'c-db',       start:6,   dur:0.5, persons:'Mariana',                 detail:'Backups configurados, pruebas de restore exitosas.',                  status:'pending'},
+    {name:'Assets finales: íconos, logos, imágenes',            area:'media',    color:'c-media',    start:2.5, dur:2,   persons:'Elixandra',               detail:'Recursos gráficos finales integrados con Frontend.',                  status:'pending'},
+    {name:'Soporte visual continuo al Frontend',                area:'media',    color:'c-media',    start:4.5, dur:2,   persons:'Elixandra',               detail:'Ajustes de diseño, nuevos componentes según avance.',                 status:'pending'},
+    {name:'Validación JWT + roles + Postman',                   area:'security', color:'c-security', start:3.5, dur:1,   persons:'Jeison',                  detail:'Endpoints protegidos, roles correctos, tokens con expiración.',       status:'pending'},
+    {name:'Pruebas OWASP ZAP sobre la API',                     area:'security', color:'c-security', start:5,   dur:1,   persons:'Jeison',                  detail:'Escaneo de vulnerabilidades en entorno de pruebas controlado.',       status:'pending'},
+    {name:'Reporte seguridad + verificación correcciones',      area:'security', color:'c-security', start:6,   dur:0.5, persons:'Jeison',                  detail:'Informe de hallazgos y verificación de correcciones aplicadas.',      status:'pending'},
+    {name:'Seguimiento semanal + revisión de PRs',              area:'coord',    color:'c-coord',    start:2.5, dur:4.5, persons:'Yeliana',                 detail:'Reuniones semanales, aprobación PRs, resolución de bloqueos.',        status:'pending'},
   ]},
   {id:'3',number:'03',title:'Fase 3 — Integración, Pruebas y Entrega',dates:'Semanas 7–8 · 9 – 27 jun',tasks:[
-    {name:'Integración completa Frontend ↔ API',               area:'general',  color:'c-general',  start:6.5, dur:1,   persons:'Alvely · Wilfredo',       detail:'Validación de todos los flujos end-to-end en entorno de pruebas.'},
-    {name:'Pruebas funcionales completas (15 módulos)',         area:'general',  color:'c-general',  start:6.5, dur:1,   persons:'Todo el equipo',          detail:'Validación de los 15 módulos definidos en requerimientos.'},
-    {name:'Corrección de bugs pre-entrega',                     area:'backend',  color:'c-backend',  start:7,   dur:0.5, persons:'Wilfredo · Christopher · Kemil','detail':'Corrección de errores encontrados en pruebas funcionales.'},
-    {name:'Corrección UI + responsive final',                   area:'frontend', color:'c-frontend', start:7,   dur:0.5, persons:'Alvely · Josue · Leury',  detail:'Ajustes visuales finales, verificación móvil y escritorio.'},
-    {name:'Documentación final Swagger + README deploy',        area:'backend',  color:'c-backend',  start:7,   dur:0.5, persons:'Wilfredo',                detail:'Todos los endpoints documentados, guía de instalación.'},
-    {name:'Demo interna + aprobación coordinación',             area:'coord',    color:'c-coord',    start:7,   dur:0.5, persons:'Yeliana + equipo',        detail:'Demo completa antes de la entrega oficial al cliente.'},
-    {name:'Entrega oficial al cliente',                         area:'coord',    color:'c-coord',    start:7.5, dur:0.5, persons:'Yeliana',                 detail:'Presentación formal al Politécnico Cristo Obrero.'},
+    {name:'Integración completa Frontend ↔ API',               area:'general',  color:'c-general',  start:6.5, dur:1,   persons:'Alvely · Wilfredo',       detail:'Validación de todos los flujos end-to-end.',                          status:'pending'},
+    {name:'Pruebas funcionales completas (15 módulos)',         area:'general',  color:'c-general',  start:6.5, dur:1,   persons:'Todo el equipo',          detail:'Validación de los 15 módulos según requerimientos.',                  status:'pending'},
+    {name:'Corrección de bugs pre-entrega',                     area:'backend',  color:'c-backend',  start:7,   dur:0.5, persons:'Wilfredo · Christopher · Kemil', detail:'Corrección de errores encontrados en pruebas.',              status:'pending'},
+    {name:'Corrección UI + responsive final',                   area:'frontend', color:'c-frontend', start:7,   dur:0.5, persons:'Alvely · Josue · Leury',  detail:'Ajustes visuales finales, verificación móvil y escritorio.',         status:'pending'},
+    {name:'Documentación final Swagger + README',               area:'backend',  color:'c-backend',  start:7,   dur:0.5, persons:'Wilfredo',                detail:'Todos los endpoints documentados, guía de instalación.',              status:'pending'},
+    {name:'Demo interna + aprobación coordinación',             area:'coord',    color:'c-coord',    start:7,   dur:0.5, persons:'Yeliana + equipo',        detail:'Demo completa antes de la entrega oficial al cliente.',               status:'pending'},
+    {name:'Entrega oficial al cliente',                         area:'coord',    color:'c-coord',    start:7.5, dur:0.5, persons:'Yeliana',                 detail:'Presentación formal al Politécnico Cristo Obrero.',                   status:'pending'},
   ]},
 ];
 
@@ -347,7 +451,7 @@ const MILESTONES=[
   {label:'Entrega al cliente',    pos:8,   text:'27 jun'},
 ];
 
-let curArea='all', curPhase='all', editKey=null;
+let curArea='all', curPhase='all', curStatus='all', editKey=null;
 
 function pct(v){return(v/8*100).toFixed(4)+'%'}
 
@@ -363,15 +467,25 @@ function renderWeeks(){
   });
 }
 
+/* CYCLE STATUS on check button click: pending → in-progress → done → pending */
+function cycleStatus(pi,ti,e){
+  e.stopPropagation();
+  const t=PHASES[pi].tasks[ti];
+  const cycle={pending:'in-progress','in-progress':'done',done:'pending'};
+  t.status=cycle[t.status]||'pending';
+  build();
+}
+
 /* BAR */
 function mkBar(task){
   const b=document.createElement('div');
   b.className='bar '+task.color;
   b.style.left=pct(task.start);
   b.style.width=pct(task.dur);
-  b.textContent=task.name;
+  const icon=task.status==='done'?'✓':task.status==='in-progress'?'▶':'';
+  b.innerHTML=`<span class="bar-inner">${task.name}</span>${icon?`<span class="bar-check">${icon}</span>`:''}`;
   b.addEventListener('mouseenter',e=>showTip(e,task));
-  b.addEventListener('mousemove',e=>moveTip(e));
+  b.addEventListener('mousemove', e=>moveTip(e));
   b.addEventListener('mouseleave',hideTip);
   return b;
 }
@@ -379,20 +493,39 @@ function mkBar(task){
 /* TASK ROW */
 function mkRow(task,phaseId,pi,ti,delay){
   const row=document.createElement('div');
-  row.className='task-row';
+  row.className='task-row'+(task.status!=='pending'?' '+task.status:'');
   row.dataset.area=task.area;
   row.dataset.phase=phaseId;
+  row.dataset.status=task.status;
   row.style.animationDelay=delay+'ms';
 
+  // label cell
   const lc=document.createElement('div');
   lc.className='task-label-cell';
-  lc.innerHTML=`<span class="task-name">${task.name}</span><span class="task-area-lbl">${task.persons}</span>`;
 
+  const cb=document.createElement('button');
+  cb.className='check-btn';
+  cb.title='Clic para cambiar estado: pendiente → en progreso → completada';
+  cb.innerHTML=task.status==='done'?'✓':task.status==='in-progress'?'▶':'';
+  cb.onclick=e=>cycleStatus(pi,ti,e);
+
+  const lContent=document.createElement('div');
+  lContent.className='label-content';
+  const statusBadge=task.status!=='pending'
+    ?`<span class="sbadge ${task.status}">${STATUS_ICONS[task.status]} ${STATUS_LABELS[task.status]}</span>`
+    :'';
+  lContent.innerHTML=`<span class="task-name">${task.name}</span><span class="task-area-lbl">${task.persons}</span>${statusBadge}`;
+
+  lc.appendChild(cb);
+  lc.appendChild(lContent);
+
+  // edit button
   const eb=document.createElement('button');
   eb.className='edit-row-btn';
   eb.textContent='✎ editar';
   eb.onclick=()=>openModal(pi,ti);
 
+  // bars
   const bw=document.createElement('div');
   bw.className='task-bars';
   for(let i=0;i<8;i++){const c=document.createElement('div');c.className='task-bars-bg-col';bw.appendChild(c);}
@@ -428,21 +561,38 @@ function mkMS(m){
 function build(){
   const body=document.getElementById('ganttBody');
   body.innerHTML='';
-  let delay=0, total=0;
+  let delay=0, total=0, done=0, inprog=0;
+
   PHASES.forEach((phase,pi)=>{
     const ph=document.createElement('div');
     ph.className='phase-header';
     ph.dataset.phase=phase.id;
     ph.innerHTML=`<span class="phase-number">${phase.number}</span><div class="phase-info"><h2>${phase.title}</h2><p>${phase.dates}</p></div><div class="phase-line"></div>`;
     body.appendChild(ph);
-    phase.tasks.forEach((task,ti)=>{body.appendChild(mkRow(task,phase.id,pi,ti,delay));delay+=30;total++;});
+    phase.tasks.forEach((task,ti)=>{
+      body.appendChild(mkRow(task,phase.id,pi,ti,delay));
+      delay+=28;
+      total++;
+      if(task.status==='done') done++;
+      else if(task.status==='in-progress') inprog++;
+    });
   });
+
   const mh=document.createElement('div');
   mh.className='phase-header';
   mh.innerHTML=`<span class="phase-number" style="font-size:1.3rem">◆</span><div class="phase-info"><h2>Hitos del proyecto</h2><p>Fechas clave de validación y entrega</p></div><div class="phase-line"></div>`;
   body.appendChild(mh);
   MILESTONES.forEach(m=>body.appendChild(mkMS(m)));
-  document.getElementById('statTasks').textContent=total;
+
+  // update stats
+  document.getElementById('statTotal').textContent=total;
+  document.getElementById('statDone').textContent=done;
+  document.getElementById('statProg').textContent=inprog;
+  const pct_val=total?Math.round(done/total*100):0;
+  document.getElementById('pctLbl').textContent=pct_val+'%';
+  document.getElementById('progressFill').style.width=pct_val+'%';
+  document.getElementById('progressSub').textContent=`${done} de ${total} tareas completadas`;
+
   applyFilters();
 }
 
@@ -450,12 +600,17 @@ function build(){
 const tip=document.getElementById('tooltip');
 function showTip(e,task){
   const ws=Math.floor(task.start);
+  const sc=STATUS_COLORS[task.status];
+  const si=STATUS_ICONS[task.status];
+  const sl=STATUS_LABELS[task.status];
   tip.innerHTML=`<div class="tt-title">${task.name}</div>
     <div class="tt-row">Área: <span>${ANAMES[task.area]||task.area}</span></div>
     <div class="tt-row">Responsables: <span>${task.persons}</span></div>
     <div class="tt-row">Inicio: <span>${WSTARTS[ws]||'Sem '+(ws+1)}</span></div>
     <div class="tt-row">Duración: <span>${task.dur>=1?task.dur+' sem':Math.round(task.dur*5)+' días'}</span></div>
-    <div class="tt-row" style="margin-top:.35rem;font-size:.63rem;color:var(--muted)">${task.detail}</div>`;
+    <div class="tt-status" style="color:${sc}">${si} ${sl}</div>
+    <div class="tt-row" style="margin-top:.3rem;font-size:.63rem;color:var(--muted)">${task.detail}</div>
+    <div class="tt-row" style="margin-top:.3rem;font-size:.6rem;color:var(--muted)">Clic en ☐ para cambiar estado</div>`;
   tip.classList.add('visible');
   moveTip(e);
 }
@@ -479,11 +634,18 @@ function fPhase(phase,el){
   el.classList.add('active');
   applyFilters();
 }
+function fStatus(status,el){
+  curStatus=status;
+  document.querySelectorAll('.status-pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  applyFilters();
+}
 function applyFilters(){
   document.querySelectorAll('.task-row').forEach(row=>{
     const aOk=curArea==='all'||row.dataset.area===curArea;
     const pOk=curPhase==='all'||row.dataset.phase===curPhase;
-    row.classList.toggle('hidden',!(aOk&&pOk));
+    const sOk=curStatus==='all'||row.dataset.status===curStatus;
+    row.classList.toggle('hidden',!(aOk&&pOk&&sOk));
   });
   document.querySelectorAll('.phase-header[data-phase]').forEach(ph=>{
     const id=ph.dataset.phase;
@@ -496,6 +658,7 @@ function applyFilters(){
 function openModal(pi,ti){
   const t=PHASES[pi].tasks[ti];
   editKey={pi,ti};
+  selectStatus(t.status||'pending');
   document.getElementById('eName').value=t.name;
   document.getElementById('eArea').value=t.area;
   document.getElementById('ePhase').value=PHASES[pi].id;
@@ -508,6 +671,15 @@ function openModal(pi,ti){
 }
 function closeModal(){document.getElementById('modalOverlay').classList.remove('open');editKey=null;}
 function closeOut(e){if(e.target===document.getElementById('modalOverlay'))closeModal();}
+
+function selectStatus(s){
+  document.getElementById('eStatus').value=s;
+  ['pending','in-progress','done'].forEach(st=>{
+    const el=document.getElementById('ss-'+st);
+    el.className='ss-opt'+(s===st?' active-'+st:'');
+  });
+}
+
 function syncRanges(){
   const s=parseFloat(document.getElementById('eStart').value);
   const d=parseFloat(document.getElementById('eDur').value);
@@ -517,6 +689,7 @@ function syncRanges(){
   document.getElementById('durLbl').textContent=d;
   document.getElementById('durRv').textContent=d;
 }
+
 function saveTask(){
   if(!editKey)return;
   const{pi,ti}=editKey;
@@ -529,6 +702,7 @@ function saveTask(){
     dur:parseFloat(document.getElementById('eDur').value),
     persons:document.getElementById('ePersons').value.trim(),
     detail:document.getElementById('eDetail').value.trim(),
+    status:document.getElementById('eStatus').value,
   };
   PHASES[pi].tasks.splice(ti,1);
   const tpi=PHASES.findIndex(p=>p.id===newPhaseId);
@@ -537,6 +711,7 @@ function saveTask(){
   closeModal();
   build();
 }
+
 function deleteTask(){
   if(!editKey)return;
   const{pi,ti}=editKey;
@@ -550,13 +725,15 @@ function deleteTask(){
 function toggleAdd(){document.getElementById('addPanel').classList.toggle('open');}
 function quickAdd(){
   const name=document.getElementById('qName').value.trim();
-  const area=document.getElementById('qArea').value;
-  const start=parseFloat(document.getElementById('qStart').value);
-  const dur=parseFloat(document.getElementById('qDur').value);
-  const phaseId=document.getElementById('qPhase').value;
   if(!name){alert('Escribe el nombre de la tarea');return;}
-  const pi=PHASES.findIndex(p=>p.id===phaseId);
-  if(pi>=0)PHASES[pi].tasks.push({name,area,color:'c-'+area,start,dur,persons:'—',detail:''});
+  const area=document.getElementById('qArea').value;
+  const pi=PHASES.findIndex(p=>p.id===document.getElementById('qPhase').value);
+  if(pi>=0)PHASES[pi].tasks.push({
+    name,area,color:'c-'+area,
+    start:parseFloat(document.getElementById('qStart').value),
+    dur:parseFloat(document.getElementById('qDur').value),
+    persons:'—',detail:'',status:'pending'
+  });
   document.getElementById('qName').value='';
   document.getElementById('addPanel').classList.remove('open');
   build();
@@ -572,12 +749,8 @@ function loadImport(e){
   const f=e.target.files[0];if(!f)return;
   const r=new FileReader();
   r.onload=ev=>{
-    try{
-      const d=JSON.parse(ev.target.result);
-      if(d.phases)PHASES=d.phases;
-      build();
-      alert('Cronograma importado correctamente.');
-    }catch{alert('Error al leer el archivo JSON.');}
+    try{const d=JSON.parse(ev.target.result);if(d.phases)PHASES=d.phases;build();alert('Importado correctamente.');}
+    catch{alert('Error al leer el JSON.');}
   };
   r.readAsText(f);e.target.value='';
 }
