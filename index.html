@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Cronograma — Politécnico Cristo Obrero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0b0f1a;--bg2:#111827;--bg3:#1a2235;--bg4:#202d42;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#e8eaf0;--muted:#7a8399;--accent:#4f8ef7;--accent2:#7fb3ff;
+  --coord:#4f8ef7;--backend:#34d399;--frontend:#f97316;
+  --db:#a78bfa;--security:#f43f5e;--media:#fbbf24;--general:#64748b;
+  --row-h:54px;--label-w:260px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh}
+
+.site-header{padding:1.1rem 2rem;border-bottom:1px solid var(--border);background:var(--bg2);position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.site-header h1{font-family:'DM Serif Display',serif;font-size:clamp(.95rem,2.2vw,1.4rem);font-weight:400;letter-spacing:-.02em}
+.site-header p{font-size:.68rem;color:var(--muted);margin-top:.18rem;font-family:'DM Mono',monospace}
+.hdr-right{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:.35rem;padding:.35rem .85rem;border-radius:7px;font-size:.72rem;font-weight:600;cursor:pointer;border:none;transition:all .14s;font-family:'Outfit',sans-serif;line-height:1.4}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:#3a7de8}
+.btn-ghost{background:var(--bg3);color:var(--muted);border:1px solid var(--border2)}.btn-ghost:hover{color:var(--text)}
+.btn-danger{background:rgba(244,63,94,.15);color:#fda4af;border:1px solid rgba(244,63,94,.3)}.btn-danger:hover{background:rgba(244,63,94,.28)}
+.badge{background:rgba(79,142,247,.15);color:var(--accent2);font-size:.62rem;font-weight:600;letter-spacing:.08em;padding:.18rem .55rem;border-radius:999px;border:1px solid rgba(79,142,247,.3);font-family:'DM Mono',monospace}
+
+.stats-bar{display:flex;gap:1.2rem;padding:.65rem 2rem;background:var(--bg2);border-bottom:1px solid var(--border);flex-wrap:wrap;align-items:center}
+.stat{display:flex;flex-direction:column}
+.stat-val{font-family:'DM Serif Display',serif;font-size:1.35rem;color:var(--text);line-height:1}
+.stat-label{font-size:.57rem;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.05em}
+.stat-div{width:1px;background:var(--border);align-self:stretch}
+
+.legend{display:flex;flex-wrap:wrap;gap:.4rem .8rem;padding:.6rem 2rem;background:var(--bg2);border-bottom:1px solid var(--border);align-items:center}
+.legend-item{display:flex;align-items:center;gap:.3rem;font-size:.68rem;color:var(--muted);cursor:pointer;transition:color .14s;padding:.18rem .45rem;border-radius:5px;border:1px solid transparent}
+.legend-item:hover{color:var(--text)}.legend-item.active{color:var(--text);background:var(--bg3);border-color:var(--border2)}
+.legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.filters{display:flex;gap:.35rem;padding:.5rem 2rem;background:var(--bg);border-bottom:1px solid var(--border);flex-wrap:wrap;align-items:center}
+.filter-lbl{font-size:.62rem;color:var(--muted);font-family:'DM Mono',monospace;margin-right:.2rem}
+.fbtn{background:var(--bg3);border:1px solid var(--border2);color:var(--muted);font-size:.65rem;font-weight:500;padding:.22rem .6rem;border-radius:5px;cursor:pointer;transition:all .14s;font-family:'Outfit',sans-serif}
+.fbtn:hover,.fbtn.active{background:rgba(79,142,247,.12);border-color:rgba(79,142,247,.35);color:var(--accent2)}
+
+/* ADD PANEL */
+.add-panel{background:var(--bg2);border-bottom:1px solid var(--border);padding:.65rem 2rem;display:none;gap:.6rem;flex-wrap:wrap;align-items:flex-end}
+.add-panel.open{display:flex}
+.ap-group{display:flex;flex-direction:column;gap:.25rem}
+.ap-label{font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.04em}
+.ap-input,.ap-select{background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-size:.75rem;padding:.3rem .6rem;border-radius:6px;font-family:'Outfit',sans-serif;outline:none;transition:border-color .14s}
+.ap-input:focus,.ap-select:focus{border-color:var(--accent)}
+.ap-input{width:220px}.ap-select{width:130px}
+.ap-select option{background:var(--bg3)}
+
+/* GANTT */
+.gantt-wrap{overflow-x:auto;padding-bottom:4rem}
+.gantt-header{display:flex;min-width:calc(var(--label-w) + 960px);border-bottom:1px solid var(--border);background:var(--bg2);position:sticky;top:54px;z-index:100}
+.gantt-header-label{width:var(--label-w);min-width:var(--label-w);padding:.45rem 1rem .45rem 2rem;font-size:.58rem;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.06em;border-right:1px solid var(--border)}
+.gantt-header-weeks{flex:1;display:grid;grid-template-columns:repeat(8,1fr)}
+.week-col{padding:.35rem .5rem;border-right:1px solid var(--border)}
+.week-col:last-child{border-right:none}
+.week-num{font-size:.53rem;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.08em;display:block}
+.week-dates{font-size:.6rem;color:var(--text);font-weight:500}
+
+.phase-header{display:flex;align-items:center;padding:1.1rem 2rem .35rem;gap:.55rem;min-width:calc(var(--label-w) + 960px)}
+.phase-number{font-family:'DM Serif Display',serif;font-size:1.7rem;color:var(--border2);line-height:1;font-style:italic}
+.phase-info h2{font-size:.88rem;font-weight:600;color:var(--text)}
+.phase-info p{font-size:.62rem;color:var(--muted);font-family:'DM Mono',monospace}
+.phase-line{flex:1;height:1px;background:var(--border)}
+
+.task-row{display:flex;min-width:calc(var(--label-w) + 960px);height:var(--row-h);border-bottom:1px solid var(--border);transition:background .12s;animation:rowIn .32s ease both;position:relative}
+.task-row:hover{background:rgba(255,255,255,.02)}.task-row.hidden{display:none}
+@keyframes rowIn{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:none}}
+
+.task-label-cell{width:var(--label-w);min-width:var(--label-w);padding:0 .7rem 0 2rem;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--border);gap:.08rem}
+.task-name{font-size:.74rem;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.task-area-lbl{font-size:.58rem;color:var(--muted);font-family:'DM Mono',monospace}
+.edit-row-btn{position:absolute;left:calc(var(--label-w) - 58px);top:50%;transform:translateY(-50%);background:var(--bg4);border:1px solid var(--border2);color:var(--muted);font-size:.58rem;padding:.12rem .4rem;border-radius:4px;cursor:pointer;opacity:0;transition:opacity .14s;font-family:'Outfit',sans-serif;z-index:10}
+.task-row:hover .edit-row-btn{opacity:1}.edit-row-btn:hover{color:var(--accent2);border-color:var(--accent)}
+
+.task-bars{flex:1;position:relative;display:grid;grid-template-columns:repeat(8,1fr)}
+.task-bars-bg-col{border-right:1px solid var(--border)}.task-bars-bg-col:last-child{border-right:none}
+.bar{position:absolute;top:50%;transform:translateY(-50%);height:25px;border-radius:6px;display:flex;align-items:center;padding:0 8px;font-size:.6rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.02em;cursor:pointer;transition:filter .14s,transform .14s}
+.bar:hover{filter:brightness(1.2);transform:translateY(-50%) scaleY(1.1);z-index:10}
+
+.milestone-row{display:flex;min-width:calc(var(--label-w) + 960px);height:38px;border-bottom:1px solid var(--border)}
+.milestone-label-cell{width:var(--label-w);min-width:var(--label-w);padding:0 .7rem 0 2rem;display:flex;align-items:center;border-right:1px solid var(--border)}
+.ms-lbl{font-size:.65rem;color:var(--muted);font-family:'DM Mono',monospace}
+.milestone-bars{flex:1;position:relative;display:grid;grid-template-columns:repeat(8,1fr)}
+.ms-bg-col{border-right:1px solid var(--border)}.ms-bg-col:last-child{border-right:none}
+.ms-wrap{position:absolute;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center}
+.ms-diamond{width:12px;height:12px;background:#fbbf24;transform:rotate(45deg);border-radius:2px}
+.ms-text{font-size:.56rem;color:#fbbf24;font-family:'DM Mono',monospace;white-space:nowrap;font-weight:600;margin-top:3px}
+
+/* TOOLTIP */
+.tooltip{position:fixed;background:var(--bg2);border:1px solid var(--border2);border-radius:9px;padding:.6rem .9rem;font-size:.68rem;color:var(--text);z-index:999;pointer-events:none;opacity:0;transition:opacity .12s;max-width:250px;box-shadow:0 8px 32px rgba(0,0,0,.6)}
+.tooltip.visible{opacity:1}
+.tt-title{font-weight:600;margin-bottom:.3rem;color:var(--accent2);font-size:.72rem}
+.tt-row{color:var(--muted);margin-top:.12rem}.tt-row span{color:var(--text)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:500;display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity .18s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:13px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.75)}
+.modal-hdr{padding:1.15rem 1.4rem .9rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-hdr h3{font-family:'DM Serif Display',serif;font-size:1.15rem;font-weight:400}
+.modal-close{background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;line-height:1;padding:.2rem}
+.modal-close:hover{color:var(--text)}
+.modal-body{padding:1.15rem 1.4rem}
+.modal-ftr{padding:.7rem 1.4rem 1.15rem;border-top:1px solid var(--border);display:flex;gap:.45rem;justify-content:flex-end}
+
+.fg{margin-bottom:.9rem}
+.fl{display:block;font-size:.68rem;font-weight:600;color:var(--muted);margin-bottom:.3rem;font-family:'DM Mono',monospace;letter-spacing:.04em}
+.fi,.fs,.fta{width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-size:.78rem;padding:.45rem .7rem;border-radius:7px;font-family:'Outfit',sans-serif;transition:border-color .14s;outline:none}
+.fi:focus,.fs:focus,.fta:focus{border-color:var(--accent)}
+.fs option{background:var(--bg3)}.fta{resize:vertical;min-height:65px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+.fhint{font-size:.6rem;color:var(--muted);margin-top:.25rem}
+.rw{display:flex;align-items:center;gap:.7rem}
+.rw input[type=range]{flex:1;accent-color:var(--accent)}
+.rv{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--accent2);min-width:2.2rem;text-align:right}
+
+/* AREA COLOR CLASSES */
+.c-coord   {background:rgba(79,142,247,.18);color:#93c5fd}
+.c-backend {background:rgba(52,211,153,.18);color:#6ee7b7}
+.c-frontend{background:rgba(249,115,22,.18);color:#fdba74}
+.c-db      {background:rgba(167,139,250,.18);color:#c4b5fd}
+.c-security{background:rgba(244,63,94,.18);color:#fda4af}
+.c-media   {background:rgba(251,191,36,.18);color:#fde68a}
+.c-general {background:rgba(100,116,139,.18);color:#94a3b8}
+
+.site-footer{padding:.9rem 2rem;border-top:1px solid var(--border);font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace;display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;background:var(--bg2)}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div>
+    <h1>Politécnico Cristo Obrero — Cronograma del Proyecto</h1>
+    <p>Plataforma de Gestión Escolar · 28 abr – 27 jun 2026 · 8 semanas</p>
+  </div>
+  <div class="hdr-right">
+    <span class="badge">MVP · 2 MESES</span>
+    <button class="btn btn-ghost" onclick="toggleAdd()">＋ Agregar tarea</button>
+    <button class="btn btn-ghost" onclick="doExport()">↓ Exportar JSON</button>
+    <button class="btn btn-ghost" onclick="doImport()">↑ Importar JSON</button>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="loadImport(event)"/>
+  </div>
+</header>
+
+<!-- QUICK ADD PANEL -->
+<div class="add-panel" id="addPanel">
+  <div class="ap-group"><label class="ap-label">NOMBRE</label><input class="ap-input" id="qName" placeholder="Nombre de la tarea"/></div>
+  <div class="ap-group"><label class="ap-label">ÁREA</label>
+    <select class="ap-select" id="qArea">
+      <option value="general">General</option><option value="coord">Coordinación</option>
+      <option value="backend">Backend</option><option value="frontend">Frontend</option>
+      <option value="db">Base de Datos</option><option value="security">Seguridad</option>
+      <option value="media">Multimedia</option>
+    </select>
+  </div>
+  <div class="ap-group"><label class="ap-label">INICIO (SEM)</label>
+    <select class="ap-select" id="qStart" style="width:100px">
+      <option value="0">Sem 1</option><option value="1">Sem 2</option><option value="2">Sem 3</option>
+      <option value="3">Sem 4</option><option value="4">Sem 5</option><option value="5">Sem 6</option>
+      <option value="6">Sem 7</option><option value="7">Sem 8</option>
+    </select>
+  </div>
+  <div class="ap-group"><label class="ap-label">DURACIÓN</label>
+    <select class="ap-select" id="qDur" style="width:90px">
+      <option value="0.5">0.5 sem</option><option value="1" selected>1 sem</option>
+      <option value="1.5">1.5 sem</option><option value="2">2 sem</option>
+      <option value="2.5">2.5 sem</option><option value="3">3 sem</option><option value="4">4 sem</option>
+    </select>
+  </div>
+  <div class="ap-group"><label class="ap-label">FASE</label>
+    <select class="ap-select" id="qPhase" style="width:90px">
+      <option value="0">Fase 0</option><option value="1">Fase 1</option>
+      <option value="2">Fase 2</option><option value="3">Fase 3</option>
+    </select>
+  </div>
+  <div style="display:flex;gap:.4rem;align-items:flex-end;padding-bottom:1px">
+    <button class="btn btn-primary" onclick="quickAdd()">Agregar</button>
+    <button class="btn btn-ghost" onclick="toggleAdd()">Cancelar</button>
+  </div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat"><span class="stat-val">8</span><span class="stat-label">SEMANAS</span></div>
+  <div class="stat-div"></div>
+  <div class="stat"><span class="stat-val">10</span><span class="stat-label">INTEGRANTES</span></div>
+  <div class="stat-div"></div>
+  <div class="stat"><span class="stat-val" id="statTasks">0</span><span class="stat-label">TAREAS</span></div>
+  <div class="stat-div"></div>
+  <div class="stat"><span class="stat-val">15</span><span class="stat-label">MÓDULOS</span></div>
+  <div class="stat-div"></div>
+  <div class="stat"><span class="stat-val">4</span><span class="stat-label">HITOS</span></div>
+</div>
+
+<div class="legend">
+  <span class="filter-lbl">ÁREA →</span>
+  <div class="legend-item active" data-area="all"      onclick="fArea('all',this)">     <span class="legend-dot" style="background:var(--muted)"></span>Todas</div>
+  <div class="legend-item" data-area="general"  onclick="fArea('general',this)">  <span class="legend-dot" style="background:var(--general)"></span>General</div>
+  <div class="legend-item" data-area="coord"    onclick="fArea('coord',this)">    <span class="legend-dot" style="background:var(--coord)"></span>Coordinación</div>
+  <div class="legend-item" data-area="backend"  onclick="fArea('backend',this)">  <span class="legend-dot" style="background:var(--backend)"></span>Backend</div>
+  <div class="legend-item" data-area="frontend" onclick="fArea('frontend',this)"> <span class="legend-dot" style="background:var(--frontend)"></span>Frontend</div>
+  <div class="legend-item" data-area="db"       onclick="fArea('db',this)">       <span class="legend-dot" style="background:var(--db)"></span>Base de Datos</div>
+  <div class="legend-item" data-area="security" onclick="fArea('security',this)"> <span class="legend-dot" style="background:var(--security)"></span>Seguridad</div>
+  <div class="legend-item" data-area="media"    onclick="fArea('media',this)">    <span class="legend-dot" style="background:var(--media)"></span>Multimedia</div>
+</div>
+
+<div class="filters">
+  <span class="filter-lbl">FASE →</span>
+  <button class="fbtn active" onclick="fPhase('all',this)">Todas</button>
+  <button class="fbtn" onclick="fPhase('0',this)">Fase 0 — Preparación</button>
+  <button class="fbtn" onclick="fPhase('1',this)">Fase 1 — Nivelación</button>
+  <button class="fbtn" onclick="fPhase('2',this)">Fase 2 — Desarrollo</button>
+  <button class="fbtn" onclick="fPhase('3',this)">Fase 3 — Cierre</button>
+</div>
+
+<div class="gantt-wrap">
+  <div class="gantt-header">
+    <div class="gantt-header-label">TAREA / ÁREA</div>
+    <div class="gantt-header-weeks" id="weekHdrs"></div>
+  </div>
+  <div id="ganttBody"></div>
+</div>
+
+<footer class="site-footer">
+  <span>Politécnico Cristo Obrero · Plataforma de Gestión Escolar</span>
+  <span>Cronograma MVP · 2 meses · v2.0 · Abril 2026</span>
+</footer>
+
+<div class="tooltip" id="tooltip"></div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeOut(event)">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h3>Editar tarea</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="fg"><label class="fl">NOMBRE</label><input class="fi" id="eName"/></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">ÁREA</label>
+          <select class="fs" id="eArea">
+            <option value="general">General</option><option value="coord">Coordinación</option>
+            <option value="backend">Backend</option><option value="frontend">Frontend</option>
+            <option value="db">Base de Datos</option><option value="security">Seguridad</option>
+            <option value="media">Multimedia</option>
+          </select>
+        </div>
+        <div class="fg"><label class="fl">FASE</label>
+          <select class="fs" id="ePhase">
+            <option value="0">Fase 0 — Preparación</option><option value="1">Fase 1 — Nivelación</option>
+            <option value="2">Fase 2 — Desarrollo</option><option value="3">Fase 3 — Cierre</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">INICIO — semana <span id="startLbl"></span></label>
+        <div class="rw"><input type="range" id="eStart" min="0" max="7.5" step="0.5" oninput="syncRanges()"/><span class="rv" id="startRv"></span></div>
+        <p class="fhint">0 = inicio sem 1 &nbsp;·&nbsp; 7.5 = fin sem 8</p>
+      </div>
+      <div class="fg">
+        <label class="fl">DURACIÓN — <span id="durLbl"></span> semanas</label>
+        <div class="rw"><input type="range" id="eDur" min="0.5" max="8" step="0.5" oninput="syncRanges()"/><span class="rv" id="durRv"></span></div>
+      </div>
+      <div class="fg"><label class="fl">RESPONSABLES</label><input class="fi" id="ePersons"/></div>
+      <div class="fg"><label class="fl">DETALLE</label><textarea class="fta" id="eDetail"></textarea></div>
+    </div>
+    <div class="modal-ftr">
+      <button class="btn btn-danger" onclick="deleteTask()">Eliminar</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveTask()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const WEEKS=[
+  {num:'SEM 1',dates:'28 abr–4 may'},{num:'SEM 2',dates:'5–11 may'},
+  {num:'SEM 3',dates:'12–18 may'},{num:'SEM 4',dates:'19–25 may'},
+  {num:'SEM 5',dates:'26 may–1 jun'},{num:'SEM 6',dates:'2–8 jun'},
+  {num:'SEM 7',dates:'9–15 jun'},{num:'SEM 8',dates:'16–27 jun'},
+];
+const WSTARTS=['28 abr','5 may','12 may','19 may','26 may','2 jun','9 jun','16 jun'];
+const ANAMES={coord:'Coordinación',backend:'Backend',frontend:'Frontend',db:'Base de Datos',security:'Ciberseguridad',media:'Multimedia',general:'General'};
+
+let PHASES=[
+  {id:'0',number:'00',title:'Fase 0 — Preparación y Documentación',dates:'Semanas 1–2 · 28 abr – 11 may',tasks:[
+    {name:'Revisión y aprobación de documentos técnicos',       area:'coord',    color:'c-coord',    start:0,   dur:1,   persons:'Yeliana',            detail:'Definición Técnica v2, Requerimientos, Organización del Equipo'},
+    {name:'Setup repositorios GitHub (backend + frontend)',     area:'general',  color:'c-general',  start:0,   dur:0.5, persons:'Yeliana · Wilfredo', detail:'Ramas main y develop, permisos por área, .gitignore.'},
+    {name:'Config entorno Backend (.NET 8 + Swagger)',          area:'backend',  color:'c-backend',  start:0,   dur:1,   persons:'Wilfredo',           detail:'ASP.NET Core 8, Clean Architecture base, Swagger activo.'},
+    {name:'Config entorno Frontend (Vite + React + TS)',        area:'frontend', color:'c-frontend', start:0,   dur:1,   persons:'Alvely',             detail:'Vite 5 + React 18 + TypeScript 5 + Tailwind CSS 3.'},
+    {name:'Setup PostgreSQL 16 + pgAdmin + DB inicial',         area:'db',       color:'c-db',       start:0,   dur:1,   persons:'Yeliana · Mariana',  detail:'PostgreSQL 16, pgAdmin, primera base de datos creada.'},
+    {name:'Diseño identidad visual y guía de estilo',           area:'media',    color:'c-media',    start:0,   dur:1.5, persons:'Elixandra',          detail:'Logo, paleta de colores, tipografías, guía de componentes.'},
+    {name:'Plan de pruebas de seguridad',                       area:'security', color:'c-security', start:0,   dur:0.5, persons:'Jeison',             detail:'Endpoints a validar, herramientas, definición de ambiente.'},
+  ]},
+  {id:'1',number:'01',title:'Fase 1 — Nivelación Técnica del Equipo',dates:'Semanas 1–3 · 28 abr – 18 may',tasks:[
+    {name:'Mini proyecto Frontend (React + TS + Tailwind)',     area:'frontend', color:'c-frontend', start:0.5, dur:2,   persons:'Alvely · Josue · Leury',  detail:'Mini Portal Académico: Login, Dashboard, tabla, formulario, Axios.'},
+    {name:'Mini API Backend (ASP.NET + JWT + EF Core)',         area:'backend',  color:'c-backend',  start:0.5, dur:2,   persons:'Christopher · Kemil',     detail:'Auth JWT, CRUD estudiantes, Swagger documentado, BCrypt.'},
+    {name:'Modelado ERD completo (15 módulos)',                 area:'db',       color:'c-db',       start:0.5, dur:2,   persons:'Yeliana · Mariana',       detail:'Estudiantes, docentes, calificaciones, horarios, pagos, etc.'},
+    {name:'Diseño pantallas base (Login, Dashboard, listados)', area:'media',    color:'c-media',    start:0.5, dur:2.5, persons:'Elixandra',               detail:'Canva: Login, dashboard, listados, formularios. Guía UI.'},
+    {name:'Revisión y aprobación mini proyectos',               area:'coord',    color:'c-coord',    start:2,   dur:0.5, persons:'Yeliana',                 detail:'Evaluación según criterios de rutas de aprendizaje.'},
+  ]},
+  {id:'2',number:'02',title:'Fase 2 — Desarrollo Core del MVP',dates:'Semanas 3–7 · 12 may – 15 jun',tasks:[
+    {name:'MOD-01/02: Usuarios + Autenticación JWT',            area:'backend',  color:'c-backend',  start:2.5, dur:1.5, persons:'Wilfredo · Christopher',  detail:'CRUD usuarios, login, JWT, roles y permisos, BCrypt.'},
+    {name:'MOD-03/04: Estudiantes + Docentes API',              area:'backend',  color:'c-backend',  start:3.5, dur:1.5, persons:'Wilfredo · Kemil',        detail:'CRUD completo con DTOs, validaciones, respuestas estandarizadas.'},
+    {name:'MOD-05/06: Grados, Secciones, Horarios API',         area:'backend',  color:'c-backend',  start:4.5, dur:1,   persons:'Christopher · Kemil',     detail:'Estructura académica, horarios con validación de conflictos.'},
+    {name:'MOD-07/08: Asistencias + Calificaciones API',        area:'backend',  color:'c-backend',  start:5,   dur:1.5, persons:'Wilfredo · Christopher',  detail:'Registro, cálculo de promedios, auditoría de cambios.'},
+    {name:'MOD-09/10: Inscripciones + Padres API',              area:'backend',  color:'c-backend',  start:5.5, dur:1,   persons:'Kemil',                   detail:'Matrícula, re-inscripción, asociación padres-hijos.'},
+    {name:'MOD-14/15: Reportes + Auditoría API',                area:'backend',  color:'c-backend',  start:6,   dur:1,   persons:'Wilfredo · Christopher',  detail:'Reportes académicos PDF/Excel, log de auditoría inmutable.'},
+    {name:'Login + Dashboard + Navegación por rol',             area:'frontend', color:'c-frontend', start:2.5, dur:1.5, persons:'Alvely · Josue',          detail:'Login con JWT real, dashboard responsivo, rutas protegidas.'},
+    {name:'Vistas Estudiantes + Docentes',                      area:'frontend', color:'c-frontend', start:3.5, dur:1.5, persons:'Alvely · Josue · Leury',  detail:'Listados, búsqueda, perfiles con Axios + TanStack Query.'},
+    {name:'Vistas Horarios + Asistencias',                      area:'frontend', color:'c-frontend', start:4.5, dur:1,   persons:'Josue · Leury',           detail:'Grilla de horarios y formulario de asistencia por docente.'},
+    {name:'Vistas Calificaciones + Inscripciones',              area:'frontend', color:'c-frontend', start:5,   dur:1.5, persons:'Alvely · Josue · Leury',  detail:'Registro de notas por docente, módulo completo de matrícula.'},
+    {name:'Panel Administrativo + Reportes Frontend',           area:'frontend', color:'c-frontend', start:6,   dur:1,   persons:'Alvely',                  detail:'Vistas de reportes exportables y panel de administración.'},
+    {name:'Migraciones DB + esquema PostgreSQL completo',       area:'db',       color:'c-db',       start:2.5, dur:1.5, persons:'Mariana',                 detail:'Migraciones EF Core aplicadas, tablas validadas en pgAdmin.'},
+    {name:'Optimización: índices + foreign keys + auditoría',   area:'db',       color:'c-db',       start:4,   dur:1,   persons:'Yeliana · Mariana',       detail:'Índices críticos, columnas created_at/updated_at en todas las tablas.'},
+    {name:'Backups y validación de integridad DB',              area:'db',       color:'c-db',       start:6,   dur:0.5, persons:'Mariana',                 detail:'Backups configurados, pruebas de restore exitosas.'},
+    {name:'Assets finales: íconos, logos, imágenes',            area:'media',    color:'c-media',    start:2.5, dur:2,   persons:'Elixandra',               detail:'Recursos gráficos finales integrados con Frontend.'},
+    {name:'Soporte visual continuo al Frontend',                area:'media',    color:'c-media',    start:4.5, dur:2,   persons:'Elixandra',               detail:'Ajustes de diseño, nuevos componentes según avance.'},
+    {name:'Validación JWT + roles + Postman',                   area:'security', color:'c-security', start:3.5, dur:1,   persons:'Jeison',                  detail:'Endpoints protegidos, roles correctos, tokens con expiración.'},
+    {name:'Pruebas OWASP ZAP sobre la API',                     area:'security', color:'c-security', start:5,   dur:1,   persons:'Jeison',                  detail:'Escaneo de vulnerabilidades en entorno de pruebas controlado.'},
+    {name:'Reporte seguridad + verificación correcciones',      area:'security', color:'c-security', start:6,   dur:0.5, persons:'Jeison',                  detail:'Informe de hallazgos y verificación de correcciones aplicadas.'},
+    {name:'Seguimiento semanal + revisión de PRs',              area:'coord',    color:'c-coord',    start:2.5, dur:4.5, persons:'Yeliana',                 detail:'Reuniones semanales, aprobación PRs, resolución de bloqueos.'},
+  ]},
+  {id:'3',number:'03',title:'Fase 3 — Integración, Pruebas y Entrega',dates:'Semanas 7–8 · 9 – 27 jun',tasks:[
+    {name:'Integración completa Frontend ↔ API',               area:'general',  color:'c-general',  start:6.5, dur:1,   persons:'Alvely · Wilfredo',       detail:'Validación de todos los flujos end-to-end en entorno de pruebas.'},
+    {name:'Pruebas funcionales completas (15 módulos)',         area:'general',  color:'c-general',  start:6.5, dur:1,   persons:'Todo el equipo',          detail:'Validación de los 15 módulos definidos en requerimientos.'},
+    {name:'Corrección de bugs pre-entrega',                     area:'backend',  color:'c-backend',  start:7,   dur:0.5, persons:'Wilfredo · Christopher · Kemil','detail':'Corrección de errores encontrados en pruebas funcionales.'},
+    {name:'Corrección UI + responsive final',                   area:'frontend', color:'c-frontend', start:7,   dur:0.5, persons:'Alvely · Josue · Leury',  detail:'Ajustes visuales finales, verificación móvil y escritorio.'},
+    {name:'Documentación final Swagger + README deploy',        area:'backend',  color:'c-backend',  start:7,   dur:0.5, persons:'Wilfredo',                detail:'Todos los endpoints documentados, guía de instalación.'},
+    {name:'Demo interna + aprobación coordinación',             area:'coord',    color:'c-coord',    start:7,   dur:0.5, persons:'Yeliana + equipo',        detail:'Demo completa antes de la entrega oficial al cliente.'},
+    {name:'Entrega oficial al cliente',                         area:'coord',    color:'c-coord',    start:7.5, dur:0.5, persons:'Yeliana',                 detail:'Presentación formal al Politécnico Cristo Obrero.'},
+  ]},
+];
+
+const MILESTONES=[
+  {label:'Entornos listos',       pos:1,   text:'4 may'},
+  {label:'Nivelación aprobada',   pos:2.5, text:'18 may'},
+  {label:'Backend core completo', pos:5.5, text:'1 jun'},
+  {label:'Entrega al cliente',    pos:8,   text:'27 jun'},
+];
+
+let curArea='all', curPhase='all', editKey=null;
+
+function pct(v){return(v/8*100).toFixed(4)+'%'}
+
+/* WEEK HEADERS */
+function renderWeeks(){
+  const w=document.getElementById('weekHdrs');
+  w.innerHTML='';
+  WEEKS.forEach(wk=>{
+    const c=document.createElement('div');
+    c.className='week-col';
+    c.innerHTML=`<span class="week-num">${wk.num}</span><span class="week-dates">${wk.dates}</span>`;
+    w.appendChild(c);
+  });
+}
+
+/* BAR */
+function mkBar(task){
+  const b=document.createElement('div');
+  b.className='bar '+task.color;
+  b.style.left=pct(task.start);
+  b.style.width=pct(task.dur);
+  b.textContent=task.name;
+  b.addEventListener('mouseenter',e=>showTip(e,task));
+  b.addEventListener('mousemove',e=>moveTip(e));
+  b.addEventListener('mouseleave',hideTip);
+  return b;
+}
+
+/* TASK ROW */
+function mkRow(task,phaseId,pi,ti,delay){
+  const row=document.createElement('div');
+  row.className='task-row';
+  row.dataset.area=task.area;
+  row.dataset.phase=phaseId;
+  row.style.animationDelay=delay+'ms';
+
+  const lc=document.createElement('div');
+  lc.className='task-label-cell';
+  lc.innerHTML=`<span class="task-name">${task.name}</span><span class="task-area-lbl">${task.persons}</span>`;
+
+  const eb=document.createElement('button');
+  eb.className='edit-row-btn';
+  eb.textContent='✎ editar';
+  eb.onclick=()=>openModal(pi,ti);
+
+  const bw=document.createElement('div');
+  bw.className='task-bars';
+  for(let i=0;i<8;i++){const c=document.createElement('div');c.className='task-bars-bg-col';bw.appendChild(c);}
+  bw.appendChild(mkBar(task));
+
+  row.appendChild(lc);
+  row.appendChild(eb);
+  row.appendChild(bw);
+  return row;
+}
+
+/* MILESTONE */
+function mkMS(m){
+  const row=document.createElement('div');
+  row.className='milestone-row';
+  const lc=document.createElement('div');
+  lc.className='milestone-label-cell';
+  lc.innerHTML=`<span class="ms-lbl">◆ ${m.label}</span>`;
+  const bw=document.createElement('div');
+  bw.className='milestone-bars';
+  for(let i=0;i<8;i++){const c=document.createElement('div');c.className='ms-bg-col';bw.appendChild(c);}
+  const dw=document.createElement('div');
+  dw.className='ms-wrap';
+  dw.style.left=`calc(${pct(m.pos)} - 6px)`;
+  dw.innerHTML=`<div class="ms-diamond"></div><span class="ms-text">${m.text}</span>`;
+  bw.appendChild(dw);
+  row.appendChild(lc);
+  row.appendChild(bw);
+  return row;
+}
+
+/* BUILD */
+function build(){
+  const body=document.getElementById('ganttBody');
+  body.innerHTML='';
+  let delay=0, total=0;
+  PHASES.forEach((phase,pi)=>{
+    const ph=document.createElement('div');
+    ph.className='phase-header';
+    ph.dataset.phase=phase.id;
+    ph.innerHTML=`<span class="phase-number">${phase.number}</span><div class="phase-info"><h2>${phase.title}</h2><p>${phase.dates}</p></div><div class="phase-line"></div>`;
+    body.appendChild(ph);
+    phase.tasks.forEach((task,ti)=>{body.appendChild(mkRow(task,phase.id,pi,ti,delay));delay+=30;total++;});
+  });
+  const mh=document.createElement('div');
+  mh.className='phase-header';
+  mh.innerHTML=`<span class="phase-number" style="font-size:1.3rem">◆</span><div class="phase-info"><h2>Hitos del proyecto</h2><p>Fechas clave de validación y entrega</p></div><div class="phase-line"></div>`;
+  body.appendChild(mh);
+  MILESTONES.forEach(m=>body.appendChild(mkMS(m)));
+  document.getElementById('statTasks').textContent=total;
+  applyFilters();
+}
+
+/* TOOLTIP */
+const tip=document.getElementById('tooltip');
+function showTip(e,task){
+  const ws=Math.floor(task.start);
+  tip.innerHTML=`<div class="tt-title">${task.name}</div>
+    <div class="tt-row">Área: <span>${ANAMES[task.area]||task.area}</span></div>
+    <div class="tt-row">Responsables: <span>${task.persons}</span></div>
+    <div class="tt-row">Inicio: <span>${WSTARTS[ws]||'Sem '+(ws+1)}</span></div>
+    <div class="tt-row">Duración: <span>${task.dur>=1?task.dur+' sem':Math.round(task.dur*5)+' días'}</span></div>
+    <div class="tt-row" style="margin-top:.35rem;font-size:.63rem;color:var(--muted)">${task.detail}</div>`;
+  tip.classList.add('visible');
+  moveTip(e);
+}
+function moveTip(e){
+  const x=e.clientX+14,y=e.clientY-10,tw=tip.offsetWidth,ww=window.innerWidth;
+  tip.style.left=(x+tw>ww?x-tw-28:x)+'px';
+  tip.style.top=y+'px';
+}
+function hideTip(){tip.classList.remove('visible');}
+
+/* FILTERS */
+function fArea(area,el){
+  curArea=area;
+  document.querySelectorAll('.legend-item').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+  applyFilters();
+}
+function fPhase(phase,el){
+  curPhase=phase;
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  applyFilters();
+}
+function applyFilters(){
+  document.querySelectorAll('.task-row').forEach(row=>{
+    const aOk=curArea==='all'||row.dataset.area===curArea;
+    const pOk=curPhase==='all'||row.dataset.phase===curPhase;
+    row.classList.toggle('hidden',!(aOk&&pOk));
+  });
+  document.querySelectorAll('.phase-header[data-phase]').forEach(ph=>{
+    const id=ph.dataset.phase;
+    const vis=[...document.querySelectorAll(`.task-row[data-phase="${id}"]`)].some(r=>!r.classList.contains('hidden'));
+    ph.style.display=vis?'':'none';
+  });
+}
+
+/* MODAL */
+function openModal(pi,ti){
+  const t=PHASES[pi].tasks[ti];
+  editKey={pi,ti};
+  document.getElementById('eName').value=t.name;
+  document.getElementById('eArea').value=t.area;
+  document.getElementById('ePhase').value=PHASES[pi].id;
+  document.getElementById('eStart').value=t.start;
+  document.getElementById('eDur').value=t.dur;
+  document.getElementById('ePersons').value=t.persons;
+  document.getElementById('eDetail').value=t.detail;
+  syncRanges();
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('open');editKey=null;}
+function closeOut(e){if(e.target===document.getElementById('modalOverlay'))closeModal();}
+function syncRanges(){
+  const s=parseFloat(document.getElementById('eStart').value);
+  const d=parseFloat(document.getElementById('eDur').value);
+  const ws=Math.floor(s);
+  document.getElementById('startLbl').textContent=(WSTARTS[ws]||'Sem '+(ws+1));
+  document.getElementById('startRv').textContent=s;
+  document.getElementById('durLbl').textContent=d;
+  document.getElementById('durRv').textContent=d;
+}
+function saveTask(){
+  if(!editKey)return;
+  const{pi,ti}=editKey;
+  const newPhaseId=document.getElementById('ePhase').value;
+  const task={
+    name:document.getElementById('eName').value.trim()||PHASES[pi].tasks[ti].name,
+    area:document.getElementById('eArea').value,
+    color:'c-'+document.getElementById('eArea').value,
+    start:parseFloat(document.getElementById('eStart').value),
+    dur:parseFloat(document.getElementById('eDur').value),
+    persons:document.getElementById('ePersons').value.trim(),
+    detail:document.getElementById('eDetail').value.trim(),
+  };
+  PHASES[pi].tasks.splice(ti,1);
+  const tpi=PHASES.findIndex(p=>p.id===newPhaseId);
+  if(tpi>=0)PHASES[tpi].tasks.push(task);
+  else PHASES[pi].tasks.splice(ti,0,task);
+  closeModal();
+  build();
+}
+function deleteTask(){
+  if(!editKey)return;
+  const{pi,ti}=editKey;
+  if(!confirm(`¿Eliminar "${PHASES[pi].tasks[ti].name}"?`))return;
+  PHASES[pi].tasks.splice(ti,1);
+  closeModal();
+  build();
+}
+
+/* QUICK ADD */
+function toggleAdd(){document.getElementById('addPanel').classList.toggle('open');}
+function quickAdd(){
+  const name=document.getElementById('qName').value.trim();
+  const area=document.getElementById('qArea').value;
+  const start=parseFloat(document.getElementById('qStart').value);
+  const dur=parseFloat(document.getElementById('qDur').value);
+  const phaseId=document.getElementById('qPhase').value;
+  if(!name){alert('Escribe el nombre de la tarea');return;}
+  const pi=PHASES.findIndex(p=>p.id===phaseId);
+  if(pi>=0)PHASES[pi].tasks.push({name,area,color:'c-'+area,start,dur,persons:'—',detail:''});
+  document.getElementById('qName').value='';
+  document.getElementById('addPanel').classList.remove('open');
+  build();
+}
+
+/* EXPORT / IMPORT */
+function doExport(){
+  const blob=new Blob([JSON.stringify({phases:PHASES,milestones:MILESTONES},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='cronograma-pco.json';a.click();
+}
+function doImport(){document.getElementById('importFile').click();}
+function loadImport(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);
+      if(d.phases)PHASES=d.phases;
+      build();
+      alert('Cronograma importado correctamente.');
+    }catch{alert('Error al leer el archivo JSON.');}
+  };
+  r.readAsText(f);e.target.value='';
+}
+
+/* INIT */
+renderWeeks();
+build();
+</script>
+</body>
+</html>
