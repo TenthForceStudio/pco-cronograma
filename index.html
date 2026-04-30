@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <style>
 :root{
   --bg:#0b0f1a;--bg2:#111827;--bg3:#1a2235;--bg4:#202d42;
@@ -204,6 +206,30 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 .c-general {background:rgba(100,116,139,.18);color:#94a3b8}
 
 .site-footer{padding:.9rem 2rem;border-top:1px solid var(--border);font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace;display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;background:var(--bg2)}
+
+/* HISTORY PANEL */
+.hist-panel{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 2rem;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease}
+.hist-panel.open{max-height:340px;padding:.75rem 2rem}
+.hist-inner{display:flex;flex-direction:column;gap:.35rem;max-height:290px;overflow-y:auto}
+.hist-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.45rem}
+.hist-hdr-title{font-size:.72rem;font-weight:600;color:var(--text)}
+.hist-clear{background:none;border:none;color:var(--muted);font-size:.63rem;cursor:pointer;font-family:'DM Mono',monospace;padding:.15rem .4rem;border-radius:4px;border:1px solid var(--border2)}
+.hist-clear:hover{color:#fda4af;border-color:rgba(244,63,94,.35)}
+.hist-empty{font-size:.68rem;color:var(--muted);font-family:'DM Mono',monospace;padding:.5rem 0}
+.hist-entry{display:flex;align-items:flex-start;gap:.6rem;padding:.35rem .5rem;border-radius:6px;background:var(--bg3);border:1px solid var(--border)}
+.hist-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:.28rem}
+.hist-dot.done{background:#34d399}.hist-dot.in-progress{background:#4f8ef7}.hist-dot.pending{background:var(--muted)}.hist-dot.added{background:#fbbf24}.hist-dot.deleted{background:#f43f5e}.hist-dot.edited{background:#a78bfa}
+.hist-body{flex:1;min-width:0}
+.hist-task{font-size:.7rem;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hist-meta{font-size:.6rem;color:var(--muted);font-family:'DM Mono',monospace;margin-top:.06rem}
+.hist-time{font-size:.58rem;color:var(--muted);font-family:'DM Mono',monospace;flex-shrink:0;margin-top:.08rem}
+.hist-badge{display:inline-flex;align-items:center;gap:.2rem;font-size:.55rem;font-weight:700;padding:.06rem .3rem;border-radius:999px;font-family:'DM Mono',monospace;letter-spacing:.04em;margin-left:.3rem}
+.hb-done{background:rgba(52,211,153,.15);color:#6ee7b7;border:1px solid rgba(52,211,153,.3)}
+.hb-in-progress{background:rgba(79,142,247,.15);color:#93c5fd;border:1px solid rgba(79,142,247,.3)}
+.hb-pending{background:rgba(122,131,153,.1);color:var(--muted);border:1px solid var(--border)}
+.hb-added{background:rgba(251,191,36,.1);color:#fde68a;border:1px solid rgba(251,191,36,.3)}
+.hb-deleted{background:rgba(244,63,94,.1);color:#fda4af;border:1px solid rgba(244,63,94,.3)}
+.hb-edited{background:rgba(167,139,250,.1);color:#c4b5fd;border:1px solid rgba(167,139,250,.3)}
 </style>
 </head>
 <body>
@@ -215,7 +241,9 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
   </div>
   <div class="hdr-right">
     <span class="badge">MVP · 2 MESES</span>
+    <span id="syncBadge" style="display:inline-flex;align-items:center;gap:.3rem;font-size:.62rem;font-family:'DM Mono',monospace;color:var(--muted);padding:.18rem .55rem;border-radius:999px;border:1px solid var(--border2);background:var(--bg3)">⟳ conectando...</span>
     <button class="btn btn-ghost" onclick="toggleAdd()">＋ Agregar tarea</button>
+    <button class="btn btn-ghost" id="histBtn" onclick="toggleHist()">↺ Historial</button>
     <button class="btn btn-ghost" onclick="doExport()">↓ Exportar</button>
     <button class="btn btn-ghost" onclick="doImport()">↑ Importar</button>
     <input type="file" id="importFile" accept=".json" style="display:none" onchange="loadImport(event)"/>
@@ -257,6 +285,15 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
     <button class="btn btn-primary" onclick="quickAdd()">Agregar</button>
     <button class="btn btn-ghost" onclick="toggleAdd()">Cancelar</button>
   </div>
+</div>
+
+<!-- HISTORY PANEL -->
+<div class="hist-panel" id="histPanel">
+  <div class="hist-hdr">
+    <span class="hist-hdr-title">↺ Historial de cambios</span>
+    <button class="hist-clear" onclick="clearHistory()">Limpiar historial</button>
+  </div>
+  <div class="hist-inner" id="histInner"></div>
 </div>
 
 <!-- STATS -->
@@ -316,7 +353,7 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 
 <footer class="site-footer">
   <span>Politécnico Cristo Obrero · Plataforma de Gestión Escolar</span>
-  <span>Haz clic en ☐ para cambiar el estado de cada tarea · v2.1 · Abril 2026</span>
+  <span>Haz clic en ☐ para cambiar el estado de cada tarea · v3.0 · Abril 2026 · Auto-guardado activo</span>
 </footer>
 
 <div class="tooltip" id="tooltip"></div>
@@ -398,7 +435,7 @@ let PHASES=[
   {id:'0',number:'00',title:'Fase 0 — Preparación y Documentación',dates:'Semanas 1–2 · 28 abr – 11 may',tasks:[
     {name:'Revisión y aprobación de documentos técnicos',       area:'coord',    color:'c-coord',    start:0,   dur:1,   persons:'Yeliana',            detail:'Definición Técnica v2, Requerimientos, Organización del Equipo',           status:'pending'},
     {name:'Setup repositorios GitHub (backend + frontend)',     area:'general',  color:'c-general',  start:0,   dur:0.5, persons:'Yeliana · Wilfredo', detail:'Ramas main y develop, permisos por área, .gitignore.',                     status:'pending'},
-    {name:'Config entorno Backend (.NET 8 + Swagger)',          area:'backend',  color:'c-backend',  start:0,   dur:1,   persons:'Wilfredo',           detail:'ASP.NET Core 8, Clean Architecture base, Swagger activo.',                 status:'pending'},
+    {name:'Config entorno Backend (.NET 10 + Swagger)',         area:'backend',  color:'c-backend',  start:0,   dur:1,   persons:'Wilfredo',           detail:'ASP.NET Core 10, Clean Architecture base, Swagger activo.',                status:'pending'},
     {name:'Config entorno Frontend (Vite + React + TS)',        area:'frontend', color:'c-frontend', start:0,   dur:1,   persons:'Alvely',             detail:'Vite 5 + React 18 + TypeScript 5 + Tailwind CSS 3.',                      status:'pending'},
     {name:'Setup PostgreSQL 16 + pgAdmin + DB inicial',         area:'db',       color:'c-db',       start:0,   dur:1,   persons:'Yeliana · Mariana',  detail:'PostgreSQL 16, pgAdmin, primera base de datos creada.',                    status:'pending'},
     {name:'Diseño identidad visual y guía de estilo',           area:'media',    color:'c-media',    start:0,   dur:1.5, persons:'Elixandra',          detail:'Logo, paleta de colores, tipografías, guía de componentes.',               status:'pending'},
@@ -406,7 +443,7 @@ let PHASES=[
   ]},
   {id:'1',number:'01',title:'Fase 1 — Nivelación Técnica del Equipo',dates:'Semanas 1–3 · 28 abr – 18 may',tasks:[
     {name:'Mini proyecto Frontend (React + TS + Tailwind)',     area:'frontend', color:'c-frontend', start:0.5, dur:2,   persons:'Alvely · Josue · Leury',  detail:'Mini Portal Académico: Login, Dashboard, tabla, formulario, Axios.',   status:'pending'},
-    {name:'Mini API Backend (ASP.NET + JWT + EF Core)',         area:'backend',  color:'c-backend',  start:0.5, dur:2,   persons:'Christopher · Kemil',     detail:'Auth JWT, CRUD estudiantes, Swagger documentado, BCrypt.',             status:'pending'},
+    {name:'Mini API Backend (.NET 10 + JWT + EF Core)',         area:'backend',  color:'c-backend',  start:0.5, dur:2,   persons:'Christopher · Kemil',     detail:'Auth JWT, CRUD estudiantes, Swagger documentado, BCrypt (.NET 10).',   status:'pending'},
     {name:'Modelado ERD completo (15 módulos)',                 area:'db',       color:'c-db',       start:0.5, dur:2,   persons:'Yeliana · Mariana',       detail:'Estudiantes, docentes, calificaciones, horarios, pagos, etc.',         status:'pending'},
     {name:'Diseño pantallas base (Login, Dashboard, listados)', area:'media',    color:'c-media',    start:0.5, dur:2.5, persons:'Elixandra',               detail:'Canva: Login, dashboard, listados, formularios. Guía UI.',             status:'pending'},
     {name:'Revisión y aprobación mini proyectos',               area:'coord',    color:'c-coord',    start:2,   dur:0.5, persons:'Yeliana',                 detail:'Evaluación según criterios de rutas de aprendizaje.',                  status:'pending'},
@@ -452,6 +489,7 @@ const MILESTONES=[
 ];
 
 let curArea='all', curPhase='all', curStatus='all', editKey=null;
+let HISTORY=[];
 
 function pct(v){return(v/8*100).toFixed(4)+'%'}
 
@@ -472,8 +510,12 @@ function cycleStatus(pi,ti,e){
   e.stopPropagation();
   const t=PHASES[pi].tasks[ti];
   const cycle={pending:'in-progress','in-progress':'done',done:'pending'};
+  const prev=t.status;
   t.status=cycle[t.status]||'pending';
+  addHistory('status', t.name, prev, t.status);
+  saveState();
   build();
+  renderHistory();
 }
 
 /* BAR */
@@ -708,6 +750,8 @@ function saveTask(){
   const tpi=PHASES.findIndex(p=>p.id===newPhaseId);
   if(tpi>=0)PHASES[tpi].tasks.push(task);
   else PHASES[pi].tasks.splice(ti,0,task);
+  addHistory('edited', task.name, null, null);
+  saveState();
   closeModal();
   build();
 }
@@ -716,7 +760,10 @@ function deleteTask(){
   if(!editKey)return;
   const{pi,ti}=editKey;
   if(!confirm(`¿Eliminar "${PHASES[pi].tasks[ti].name}"?`))return;
+  const name=PHASES[pi].tasks[ti].name;
   PHASES[pi].tasks.splice(ti,1);
+  addHistory('deleted', name, null, null);
+  saveState();
   closeModal();
   build();
 }
@@ -736,12 +783,14 @@ function quickAdd(){
   });
   document.getElementById('qName').value='';
   document.getElementById('addPanel').classList.remove('open');
+  addHistory('added', name, null, null);
+  saveState();
   build();
 }
 
 /* EXPORT / IMPORT */
 function doExport(){
-  const blob=new Blob([JSON.stringify({phases:PHASES,milestones:MILESTONES},null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({phases:PHASES,milestones:MILESTONES,history:HISTORY},null,2)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='cronograma-pco.json';a.click();
 }
 function doImport(){document.getElementById('importFile').click();}
@@ -749,15 +798,131 @@ function loadImport(e){
   const f=e.target.files[0];if(!f)return;
   const r=new FileReader();
   r.onload=ev=>{
-    try{const d=JSON.parse(ev.target.result);if(d.phases)PHASES=d.phases;build();alert('Importado correctamente.');}
-    catch{alert('Error al leer el JSON.');}
+    try{
+      const d=JSON.parse(ev.target.result);
+      if(d.phases)PHASES=d.phases;
+      if(d.history)HISTORY=d.history;
+      saveState();
+      build();
+      renderHistory();
+      alert('Importado correctamente.');
+    }catch{alert('Error al leer el JSON.');}
   };
   r.readAsText(f);e.target.value='';
 }
 
+/* ── FIREBASE REAL-TIME SYNC ── */
+const firebaseConfig = {
+  apiKey: "AIzaSyDUkF2WR6St6UFH0eFYuV1Cu3PAADCzrRU",
+  authDomain: "pco-cronograma.firebaseapp.com",
+  databaseURL: "https://pco-cronograma-default-rtdb.firebaseio.com",
+  projectId: "pco-cronograma",
+  storageBucket: "pco-cronograma.firebasestorage.app",
+  messagingSenderId: "400111026892",
+  appId: "1:400111026892:web:0542a85cd569e1ccddf869"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const REF = db.ref('cronograma');
+let _ignoreNext = false;
+
+function setSyncBadge(state){
+  const b = document.getElementById('syncBadge');
+  if(!b) return;
+  if(state === 'ok')      { b.style.color='#6ee7b7'; b.style.borderColor='rgba(52,211,153,.35)'; b.style.background='rgba(52,211,153,.08)'; b.textContent='✓ sincronizado'; }
+  else if(state === 'saving') { b.style.color='#93c5fd'; b.style.borderColor='rgba(79,142,247,.35)'; b.style.background='rgba(79,142,247,.08)'; b.textContent='⟳ guardando...'; }
+  else if(state === 'error')  { b.style.color='#fda4af'; b.style.borderColor='rgba(244,63,94,.35)'; b.style.background='rgba(244,63,94,.08)'; b.textContent='✕ sin conexión'; }
+  else { b.style.color='var(--muted)'; b.style.borderColor='var(--border2)'; b.style.background='var(--bg3)'; b.textContent='⟳ conectando...'; }
+}
+
+function saveState(){
+  setSyncBadge('saving');
+  REF.set({ phases: PHASES, history: HISTORY })
+    .then(()  => setSyncBadge('ok'))
+    .catch(()  => setSyncBadge('error'));
+}
+
+/* Real-time listener — fires for ALL users when data changes */
+function initSync(){
+  REF.on('value', snap => {
+    const data = snap.val();
+    if(data && data.phases){
+      PHASES  = data.phases;
+      HISTORY = data.history || [];
+    } else {
+      /* Primera vez: sube los datos por defecto */
+      saveState();
+      return;
+    }
+    build();
+    renderHistory();
+    setSyncBadge('ok');
+  }, () => setSyncBadge('error'));
+}
+
+/* Connection state indicator */
+db.ref('.info/connected').on('value', snap => {
+  if(!snap.val()) setSyncBadge('error');
+});
+
 /* INIT */
 renderWeeks();
-build();
+initSync();   /* build() y renderHistory() se llaman dentro del listener */
+
+
+function addHistory(type, taskName, fromStatus, toStatus){
+  const now=new Date();
+  const timeStr=now.toLocaleTimeString('es-DO',{hour:'2-digit',minute:'2-digit'});
+  const dateStr=now.toLocaleDateString('es-DO',{day:'2-digit',month:'short'});
+  HISTORY.unshift({type,taskName,fromStatus,toStatus,time:timeStr,date:dateStr,ts:now.getTime()});
+  if(HISTORY.length>100)HISTORY=HISTORY.slice(0,100);
+}
+
+function renderHistory(){
+  const inner=document.getElementById('histInner');
+  const btn=document.getElementById('histBtn');
+  if(!inner)return;
+  if(!HISTORY.length){
+    inner.innerHTML='<div class="hist-empty">Sin cambios registrados aún. Los cambios que hagas aparecerán aquí.</div>';
+    btn.textContent='↺ Historial';
+    return;
+  }
+  btn.textContent=`↺ Historial (${HISTORY.length})`;
+  const typeLabel={status:'Estado',added:'Tarea agregada',deleted:'Tarea eliminada',edited:'Tarea editada'};
+  const dotClass={done:'done','in-progress':'in-progress',pending:'pending',added:'added',deleted:'deleted',edited:'edited'};
+  const badgeMap={done:'hb-done','in-progress':'hb-in-progress',pending:'hb-pending',added:'hb-added',deleted:'hb-deleted',edited:'hb-edited'};
+  const statusLabel={done:'✓ Completada','in-progress':'▶ En progreso',pending:'○ Pendiente'};
+  inner.innerHTML=HISTORY.map(h=>{
+    const dc=h.type==='status'?(dotClass[h.toStatus]||'pending'):dotClass[h.type]||'edited';
+    let meta='';
+    if(h.type==='status'&&h.fromStatus&&h.toStatus){
+      meta=`<span class="hist-badge ${badgeMap[h.fromStatus]||'hb-pending'}">${statusLabel[h.fromStatus]||h.fromStatus}</span> → <span class="hist-badge ${badgeMap[h.toStatus]||'hb-pending'}">${statusLabel[h.toStatus]||h.toStatus}</span>`;
+    } else {
+      meta=`<span class="hist-badge ${badgeMap[h.type]||'hb-edited'}">${typeLabel[h.type]||h.type}</span>`;
+    }
+    return `<div class="hist-entry">
+      <div class="hist-dot ${dc}"></div>
+      <div class="hist-body">
+        <div class="hist-task">${h.taskName}</div>
+        <div class="hist-meta">${meta}</div>
+      </div>
+      <div class="hist-time">${h.date} ${h.time}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleHist(){
+  const p=document.getElementById('histPanel');
+  p.classList.toggle('open');
+  renderHistory();
+}
+
+function clearHistory(){
+  if(!confirm('¿Limpiar todo el historial de cambios?'))return;
+  HISTORY=[];
+  saveState();
+  renderHistory();
+}
 </script>
 </body>
 </html>
